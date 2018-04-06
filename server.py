@@ -1,53 +1,58 @@
 #!/usr/bin/python
-from http.server import BaseHTTPRequestHandler,HTTPServer
-from os import curdir, sep
 
-PORT_NUMBER = 8080
+import os
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import config
 
-static_path = "static"
-
-class myHandler(BaseHTTPRequestHandler):
+class TRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path=="/":
-            self.path="/index.html"
+        if self.path == '/':
+            self.path += config.DEFAULT_PAGE
 
         try:
-            sendReply = False
-            if self.path.endswith(".html"):
-                mimetype='text/html'
-                sendReply = True
-            if self.path.endswith(".jpg"):
-                mimetype='image/jpg'
-                sendReply = True
-            if self.path.endswith(".js"):
-                mimetype='application/javascript'
-                sendReply = True
-            if self.path.endswith(".css"):
-                mimetype='text/css'
-                sendReply = True
+            mime_type = ''
+            type_supported = True
+            
+            if self.path.endswith('.html'):
+                mime_type = 'text/html'
+            elif self.path.endswith('.jpg'):
+                mime_type = 'image/jpg'
+            elif self.path.endswith('.ico'):
+                mime_type = 'image/x-icon'
+            elif self.path.endswith('.js'):
+                mime_type = 'application/javascript'
+            elif self.path.endswith('.css'):
+                mime_type = 'text/css'
+            else:
+                type_supported = False
 
-            if sendReply == True:
-                #Open the static file requested and send it
-                f = open(curdir + sep + static_path + sep + self.path, 'rb') 
+            if type_supported:
+                f = open(os.curdir + os.sep + config.STATIC_PATH + os.sep + self.path, 'rb') 
                 self.send_response(200)
-                self.send_header('Content-type',mimetype)
+                self.send_header('Content-type', mime_type)
                 self.end_headers()
                 self.wfile.write(f.read())
                 f.close()
-            return
+            else:
+                self.send_error(415, 'Unsupported Media Type')
 
         except IOError:
-            self.send_error(404,'File Not Found: %s' % self.path)
+            self.send_error(404, 'File Not Found: ' + self.path)
+        except Exception as e:
+            self.send_error(500, 'Internal Server Error')
+            print(str(e))
 
-try:
-    #Create a web server and define the handler to manage the
-    #incoming request
-    server = HTTPServer(('', PORT_NUMBER), myHandler)
-    print ('Started httpserver on port' , PORT_NUMBER)
-    
-    #Wait forever for incoming htto requests
-    server.serve_forever()
 
-except KeyboardInterrupt:
-    print ('^C received, shutting down the web server')
+if __name__ == '__main__':
+    try:
+        server = HTTPServer(('', config.DEFAULT_PORT), TRequestHandler)
+        print('Started on port', config.DEFAULT_PORT)
+        server.serve_forever()
+
+    except KeyboardInterrupt:
+        print('Shutting down the server...')
+    except Exception as e:
+        print(str(e))
+        print("Aborted")
+
     server.socket.close()

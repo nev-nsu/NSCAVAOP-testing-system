@@ -1,0 +1,3 @@
+DEFAULT_PORT = 8080
+STATIC_PATH = 'static'
+DEFAULT_PAGE = 'index.html'
