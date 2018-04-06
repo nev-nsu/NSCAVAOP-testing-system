@@ -3,12 +3,18 @@
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import config
+from api.api import ApiProxy
+
+api_proxy = ApiProxy()
 
 class TRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        if self.path.startswith('/api'):
+            api_proxy.handle(self.path, self)
+            return
+
         if self.path == '/':
             self.path += config.DEFAULT_PAGE
-
         try:
             mime_type = ''
             type_supported = True
