@@ -12,6 +12,8 @@ Types
 - Commutation request "commutation" (in future for non-generated tests)
 - Interrupt request "stop"
 
+Status is one of: *ADDED*, *COMPILATION*, *FAILED*, *TESTING*, *FINISHED*, *NOT_FOUND*. Case doesn't matter. 
+
 Testing request
 ---------------
 ```json
@@ -21,21 +23,25 @@ Testing request
     data: {
         code: 'int main() {}',
         options: {
-            optimization_level: '3'
+            optimization_level: '3' // only optimization level for today
         },
         tests: [{
             type: 'generated', // only 'generated' for today
             number: 100,
-            type: 'integer',
-            min: -5,
-            max: 5,
-            name: "n" // no repeats
+            template: {
+                type: {type: 'value', value: 'integer'},
+                min: {type: 'test', template: {...}},
+                max: {type: 'variable', name: 'MAX'},
+                name: {type: 'value', value: 'n'} // no repeats
+            }
         }],
         verifier: 'def verify(raw_input, raw_output, template): return true',
         responce_type: 'raw_data' // or 'failed_only' or 'statistic'
     }
 }
 ```
+
+In templates parameters must be objects with field **type** on of: *value* (and field **value**), *variable* (and field **name**), *test* (and filed **template**).
 
 ```json
 {
@@ -64,6 +70,8 @@ Update request
     }
 }
 
+// or
+
 {
     status: 'finished',
     data: [{
@@ -73,8 +81,10 @@ Update request
     }]
 }
 
+// or
+
 {
-    status: 'compilation failed',
+    status: 'failed',
     data: 'error here'
 }
 
@@ -95,6 +105,6 @@ Interrupt request
 
 ```json
 {
-    status: 'aborted',
-    data: 'by user request'
+    status: 'failed',
+    data: 'aborted by user request'
 }
