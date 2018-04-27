@@ -19,12 +19,12 @@ class Generator:
     def generate(self):
         try:
             for group in self.tests:
-                if group.type == 'generated':
-                    for i in range(group.number):
-                        yield self.__generate_instance__(group.template)
+                if group['type'] == 'generated':
+                    for i in range(group['number']):
+                        yield self.__generate_instance__(group['template'])
                 else:
                     raise UnknownType()
-        except AttributeError:
+        except (AttributeError, KeyError):
             raise BadTemplate()
                 
 
@@ -33,20 +33,20 @@ class Generator:
         return self.__generate_recursive__(template)['representation']
 
     def __get_attribute__(self, obj, name, optional = False):
-        if hasattr(obj, name):
-            attr = getattr(obj, name)
+        if name in obj:
+            attr = obj[name]
         else:
             if not optional:
                 raise BadTemplate()
             return None
-        if attr.type == 'value':
-            return attr.value
-        elif attr.type == 'variable':
-            if not hasattr(self.names, attr.name):
+        if attr['type'] == 'value':
+            return attr['value']
+        elif attr['type'] == 'variable':
+            if not attr['name'] in self.names:
                 raise UnresolvedVariableName()
-            return self.names[attr.name]
-        elif attr.type == 'test':
-            return __generate_recursive__(attr.template)['raw']
+            return self.names[attr['name']]
+        elif attr['type'] == 'test':
+            return __generate_recursive__(attr['template'])['raw']
         else:
             raise UnknownType()
 

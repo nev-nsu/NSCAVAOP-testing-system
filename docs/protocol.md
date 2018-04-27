@@ -1,7 +1,7 @@
 Base schema
 ===========
 - Primary request (primary = true, type, data)
-- Primary responce (status, token, data, finished = false)
+- Primary response (status, token, data, finished = false)
 - Request (primary = false, token, type, data)
 - Responce (status, data, finished = true)
 
@@ -36,7 +36,7 @@ Testing request
             }
         }],
         verifier: 'def verify(raw_input, raw_output, template): return true',
-        responce_type: 'raw_data' // or 'failed_only' or 'statistic'
+        response_type: 'raw_data' // or 'failed_only' or 'statistic'
     }
 }
 ```

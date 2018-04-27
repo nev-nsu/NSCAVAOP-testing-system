@@ -4,15 +4,15 @@ from uuid import uuid4
 import threading
 
 class TestingTask:
-    def __init__(self, code, options, tests, verifier, responce):
+    def __init__(self, code, options, tests, verifier, response):
         self.status = 'added'
         self.code = code
         self.verifier = verifier
         self.options = options
         self.tests = tests
-        self.responce = responce
+        self.response = response
         # generate a token
-        self.number = uuid4()
+        self.number = str(uuid4())
         # create thread for the task
         self.worker = threading.Thread(target=self.execute)
         
@@ -21,21 +21,24 @@ class TestingTask:
 
     def execute(self):
         sb = Sandbox(self.number)
-        # todo: transform options to string
         res = sb.compile_untrusted(self.code, self.options)
-        if res.hasattr('error'):
+        if 'error' in res:
             self.status = 'failed'
-            self.result = res.error
+            self.result = res['error']
             return
         self.status = 'compiled'
         gen = Generator(self.tests)
         self.status = 'run'
         try:
+            if self.response == 'statistics':
+                self.result = {}
+            else:
+                self.result = []
             for result in self.testing(sb, gen):
-                if self.responce == 'statistics':
-                    self.result[result.status] += 1
-                elif self.responce == 'raw_data' or result.status != 'OK':
-                    self.result.append(result)
+                if self.response == 'statistics':
+                    self.result[result['status']] += 1
+                elif self.response == 'raw_data' or result['status'] != 'OK':
+                    self.result.append([result])
             self.status = 'finished'
         except UnresolvedVariableName:
             self.status = 'failed'
@@ -47,18 +50,21 @@ class TestingTask:
             self.status = 'failed'
             self.result = 'Bad test template'
 
-
     def testing(self, sandbox, generator):
         for test in generator.generate():
-            result = {}
-            result.input = test
+            result = { 'input': test }
             res = sandbox.execute_untrusted(test)
-            if not res.hasattr('error'):
-                result.output = sandbox.get_execution_result()
+            if 'error' in res:
+                self.status = 'CRASH'
+                self.result = res['error']
+                yield result
+            else:
+                result['output'] = sandbox.get_execution_result()
                 res = sandbox.verify_untrusted(self.verifier, test)
-                if not res.hasattr('error'):
-                    result.status = res
+                if 'error' in res:
+                    self.status = 'CRASH'
+                    self.result = res['error']
                     yield result
-            self.status = 'CRASH'
-            self.result = res.error
-            yield result
+                else:
+                    result['status'] = res
+                    yield result

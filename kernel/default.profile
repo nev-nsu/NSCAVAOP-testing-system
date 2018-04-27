@@ -19,14 +19,14 @@ notv
 novideo
 protocol unix,inet,inet6
 seccomp
-shell none
+# shell none
 
 disable-mnt
-private
-private-bin program
-private-dev
-private-etc none
-private-lib
+#private
+#private-bin program
+#private-dev
+#private-etc none
+#private-lib
 private-tmp
 
 memory-deny-write-execute
