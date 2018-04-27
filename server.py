@@ -9,10 +9,6 @@ api_proxy = ApiProxy()
 
 class TRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path.startswith('/api'):
-            api_proxy.handle(self.path, self)
-            return
-
         if self.path == '/':
             self.path += config.DEFAULT_PAGE
         try:
@@ -33,7 +29,7 @@ class TRequestHandler(BaseHTTPRequestHandler):
                 type_supported = False
 
             if type_supported:
-                f = open(os.curdir + os.sep + config.STATIC_PATH + os.sep + self.path, 'rb') 
+                f = open(config.STATIC_PATH + os.sep + self.path, 'rb') 
                 self.send_response(200)
                 self.send_header('Content-type', mime_type)
                 self.end_headers()
@@ -48,6 +44,11 @@ class TRequestHandler(BaseHTTPRequestHandler):
             self.send_error(500, 'Internal Server Error')
             print(str(e))
 
+    def do_POST(self):
+        if self.path.startswith('/api'):
+            api_proxy.handle(self.path, self)
+        else:
+            self.send_error(404, 'File Not Found: ' + self.path)
 
 if __name__ == '__main__':
     try:
