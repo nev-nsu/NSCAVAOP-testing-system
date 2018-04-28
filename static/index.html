@@ -3,37 +3,49 @@
 	<head>
 		<meta charset="utf-8">
 		<link href="style.css" rel="stylesheet">
+		<script>
+			function importCodeFromFile()
+			{
+				//TODO
+			}
+
+			function sendRequest()
+			{
+				//TODO
+			}
+		</script>
 	</head>
 	<body>
-		<form id="form" method="post" action="mailto:i.a.gornev@gmail.com" enctype="multipart/form-data">
-			<div class="header">
-				<div class="button">
-					<input type="file" accept="text/x-c" id="load_file">
-					<!-- <textarea name="c-code" id="c-code" form="form"></textarea> -->
-				</div>
+		<div class="header">
+			<div class="button">
+				<button id="load_file" onclick="importCodeFromFile()">Import C code from file</button>
 			</div>
+		</div>
 			<div class="middle_area">
-				<div class="column left-column">
-					<div class="column-content">
-						<label for="tests_description"><p class="centered">Tests description</p></label>
-						<textarea name="tests_description" id="tests_description" form="form"></textarea>
-					</div>
-				</div>
-				<div class="column right-column">
-					<div class="column-content">
-						<label for="verification_script"><p class="centered">Verification script</p></label>
-						<textarea name="verification_script" id="verification_script" form="form"></textarea>
-					</div>
+			<div class="column left-column">
+				<div class="column-content">
+					<label for="source_code">C code</label>
+					<textarea id="source_code"></textarea>
 				</div>
 			</div>
-			<div class="footer">
-				<div class="button">
-					<input type="submit" value="Send">
-				</div>
-				<div>
-					<p id="output">Вывод</p>
+			<div class="column right-column">
+				<div class="column-content">
+					<label for="tests_description">Tests description</label>
+					<textarea id="tests_description"></textarea>
 				</div>
 			</div>
-		</form>
+		</div>
+		<div class="footer">
+			<div>
+				<label for="verification_script">Verification script</label>
+				<textarea id="verification_script"></textarea>
+			</div>
+			<div class="button" id="submit_container">
+				<button id="sumbit" onclick="sendRequest()"><font size="6">Submit</font></button>
+			</div>
+			<div>
+				<p id="output">Вывод</p>
+			</div>
+		</div>
 	</body>
 </html>
