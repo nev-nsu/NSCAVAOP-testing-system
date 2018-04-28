@@ -11,6 +11,7 @@
 				var request = document.getElementById('request').value;
 
 				xhr.open('POST', 'api/v1/test', true);
+				xhr.setRequestHeader('Content-Type', 'application/json');
 				xhr.send(request);
 
 				document.getElementById('send_button').innerHTML = "Sending...";
