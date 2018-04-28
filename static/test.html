@@ -12,7 +12,6 @@
 
 				xhr.open('POST', 'api/v1/test', true);
 				xhr.setRequestHeader('Content-Type', 'application/json');
-				xhr.send(request);
 
 				document.getElementById('send_button').innerHTML = "Sending...";
 				document.getElementById('send_button').disabled = true;
@@ -20,15 +19,15 @@
 
 				xhr.onreadystatechange = function()
 				{
-					if (xhr.readyState != 4) return;
+					if (this.readyState != 4) return;
 
-					if (xhr.status != 200)
+					if (this.status != 200)
 					{
-						document.getElementByID('output').value = xhr.status + ': ' + xhr.statusText;
+						document.getElementByID('output').innerHTML = this.status + ': ' + this.statusText;
 					}
 					else
 					{
-						document.getElementByID('output').value = xhr.responseText;
+						document.getElementByID('output').innerHTML = this.responseText;
 					}
 
 					document.getElementById('send_button').innerHTML = "Send";
@@ -36,6 +35,8 @@
 					document.getElementById('request').value = "";
 					document.getElementById('request').disabled = false;
 				}
+				
+				xhr.send(request);
 			}
 		</script>
 	</head>
