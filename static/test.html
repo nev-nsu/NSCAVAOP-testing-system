@@ -20,19 +20,17 @@
 				xhr.onreadystatechange = function()
 				{
 					if (this.readyState != 4) return;
-
 					if (this.status != 200)
 					{
-						document.getElementByID('output').innerHTML = this.status + ': ' + this.statusText;
+						document.getElementById('output').innerHTML = this.status + ': ' + this.statusText;
 					}
 					else
 					{
-						document.getElementByID('output').innerHTML = this.responseText;
+						document.getElementById('output').innerHTML = this.responseText;
 					}
 
 					document.getElementById('send_button').innerHTML = "Send";
 					document.getElementById('send_button').disabled = false;
-					document.getElementById('request').value = "";
 					document.getElementById('request').disabled = false;
 				}
 				
