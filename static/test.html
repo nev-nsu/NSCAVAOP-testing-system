@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">		
+		<title>Тестовая страница</title>
+		<style type="text/css"></style>
+		<script>
+			function sendRequest()
+			{
+				var xhr = new XMLHttpRequest();
+				var request = document.getElementById('request').value;
+
+				xhr.open('POST', 'api/v1/test', true);
+				xhr.send(request);
+
+				document.getElementById('send_button').innerHTML = "Sending...";
+				document.getElementById('send_button').disabled = true;
+				document.getElementById('request').disabled = true;
+
+				xhr.onreadystatechange = function()
+				{
+					if (xhr.readyState != 4) return;
+
+					if (xhr.status != 200)
+					{
+						document.getElementByID('output').value = xhr.status + ': ' + xhr.statusText;
+					}
+					else
+					{
+						document.getElementByID('output').value = xhr.responseText;
+					}
+
+					document.getElementById("send_button").innerHTML = "Send";
+					document.getElementById("send_button").disabled = false;
+					document.getElementById('request').disabled = false;
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div style="margin: auto">
+			<div>
+				<textarea name="Request" id="request"></textarea>
+			</div>
+			<div type="button">
+				<button id="send_button" onclick="sendRequest()">Send</button>
+			</div>
+		</div>
+		<div style="margin: auto">
+			<p name="Output" id="output" style="background: #DDDDDD">Output</p>
+		</div>
+	</body>
+</html>
