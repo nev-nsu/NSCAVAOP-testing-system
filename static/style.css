@@ -3,9 +3,6 @@
 	margin-bottom: 5px;
 }
 
-.middle-area{
-}
-
 .left-column {
 	float: left;
 }
@@ -28,29 +25,74 @@
 	clear: both;
 }
 
-.button {
+button {
+	background: #EEEEEE;
+	background: -moz-linear-gradient(#DFDFDF, #EEEEEE, ##DFDFDF);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#DFDFDF), to(#DFDFDF), color-stop(0.5, #EEEEEE));
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#DFDFDF', endColorstr='#EEEEEE');
+	border: 1px solid #CCCCCC;
+	border-radius: 2px;
+	padding: 2px 10px;
+}
+
+button:hover {
+	border: 1px solid #009000;
+}
+
+button:active {
+	background: #DDDDDD;
+	background: -moz-linear-gradient(#DFDFDF, #DDDDDD, ##DFDFDF);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#DFDFDF), to(#DFDFDF), color-stop(0.5, #DDDDDD));
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#DFDFDF', endColorstr='#DDDDDD');
 }
 
 #submit_container {
 	float: right;
-	margin-top: 22px;
-	margin-left: 5px;
-	margin-right: 5px;
+	margin-top: 27px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+#submit {
+	background: #009300;
+	background: -moz-linear-gradient(#008500, #009900, ##008500);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#008500), to(#008500), color-stop(0.3, #009900));
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#008500', endColorstr='#009900');
+	color: white;
+	padding: 5px 25px;
+	border: 1px solid #007000;
+	border-radius: 5px;
+}
+
+#submit:hover {
+	border: 1px solid black;
+}
+
+#submit:active {
+	background: #008800;
+	background: -moz-linear-gradient(#007500, #009000, ##007500);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#007500), to(#007500), color-stop(0.3, #009000));
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#007500', endColorstr='#009000');
 }
 
 textarea {
-	height: 375px;
+	padding: 5px;
+	height: 365px;
 	width: 100%;
+	border: 1px solid #BBBBBB;
+	border-radius: 10px 10px 0;
+}
+
+textarea:focus {
+	border: 1px solid #009000;
 }
 
 #verification_script {
 	height: 125px;
 }
 
-label {
-}
-
 #output {
 	background: #EEEEEE;
+	border-radius: 10px;
 	min-height: 60px;
 }

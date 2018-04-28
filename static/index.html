@@ -3,22 +3,11 @@
 	<head>
 		<meta charset="utf-8">
 		<link href="style.css" rel="stylesheet">
-		<script>
-			function importCodeFromFile()
-			{
-				//TODO
-			}
-
-			function sendRequest()
-			{
-				//TODO
-			}
-		</script>
 	</head>
 	<body>
 		<div class="header">
 			<div class="button">
-				<button id="load_file" onclick="importCodeFromFile()">Import C code from file</button>
+				<button id="load_file" onclick="importCodeFromFile()"><font size="2">Import C code from file</font></button>
 			</div>
 		</div>
 			<div class="middle_area">
@@ -41,11 +30,12 @@
 				<textarea id="verification_script"></textarea>
 			</div>
 			<div class="button" id="submit_container">
-				<button id="sumbit" onclick="sendRequest()"><font size="6">Submit</font></button>
+				<button id="submit" onclick="sendRequest()"><font size="5">Submit</font></button>
 			</div>
 			<div>
-				<p id="output">Вывод</p>
+				<p id="output"></p>
 			</div>
 		</div>
+		<script src="script.js"></script>
 	</body>
 </html>
