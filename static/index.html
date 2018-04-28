@@ -5,32 +5,35 @@
 		<link href="style.css" rel="stylesheet">
 	</head>
 	<body>
-		<div class="header">
-			<div class="button">
-				<button id="load_file">Load c file</button>
-			</div>
-		</div>
-		<div class="middle_area">
-			<div class="column left-column">
-				<div class="column-content">
-					<label for="tests_description"><p class="centered">Tests description</p></label>
-					<textarea id="tests_description"></textarea>
+		<form id="form" action="handler.php" enctype="text/plain">
+			<div class="header">
+				<div class="button">
+					<!-- <input type="file" accept="text/x-c" id="load_file"> -->
+					<textarea name="c-code" id="c-code" form="form"></textarea>
 				</div>
 			</div>
-			<div class="column right-column">
-				<div class="column-content">
-					<label for="verification_script"><p class="centered">Verification script</p></label>
-					<textarea id="verification_script"></textarea>
+			<div class="middle_area">
+				<div class="column left-column">
+					<div class="column-content">
+						<label for="tests_description"><p class="centered">Tests description</p></label>
+						<textarea name="tests_description" id="tests_description" form="form"></textarea>
+					</div>
+				</div>
+				<div class="column right-column">
+					<div class="column-content">
+						<label for="verification_script"><p class="centered">Verification script</p></label>
+						<textarea name="verification_script" id="verification_script" form="form"></textarea>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="footer">
-			<div class="button">
-				<button id="send_button">Send</button>
+			<div class="footer">
+				<div class="button">
+					<input type="submit" value="Send">
+				</div>
+				<div>
+					<p id="output">Вывод</p>
+				</div>
 			</div>
-			<div>
-				<p id="output">Вывод</p>
-			</div>
-		</div>
+		</form>
 	</body>
 </html>
