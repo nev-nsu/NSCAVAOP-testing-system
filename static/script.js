@@ -24,7 +24,6 @@ function loadFile()
 		reader.onerror = function(event)
 		{
 			alert('Can\'t read the file. Error code: ' + event.target.error.code);
-			alert('Error: ' + event.target.error);
 		};
 
 		reader.readAsText(input.files[0]);		
