@@ -1,0 +1,42 @@
+.header {
+	padding: 0 10px;
+}
+
+.middle-area{
+}
+
+.left-column {
+	float: left;
+}
+
+.right-column {
+	float: right;
+}
+
+.column {
+	width: 50%;
+}
+
+.column-content {
+	padding: 0 10px;
+}
+
+.footer {
+	padding: 0 10px;
+	clear: both;
+}
+
+.button {
+}
+
+textarea {
+	height: 500px;
+	width: 100%;
+}
+
+label {
+}
+
+#output {
+	background: #EEEEEE;
+}

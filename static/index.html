@@ -1,5 +1,36 @@
+<!DOCTYPE HTML>
 <html>
-    <body>
-        Hello, world!
-    </body>
+	<head>
+		<meta charset="utf-8">
+		<link href="style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="header">
+			<div class="button">
+				<button id="load_file">Load c file</button>
+			</div>
+		</div>
+		<div class="middle_area">
+			<div class="column left-column">
+				<div class="column-content">
+					<label for="tests_description"><p class="centered">Tests description</p></label>
+					<textarea id="tests_description"></textarea>
+				</div>
+			</div>
+			<div class="column right-column">
+				<div class="column-content">
+					<label for="verification_script"><p class="centered">Verification script</p></label>
+					<textarea id="verification_script"></textarea>
+				</div>
+			</div>
+		</div>
+		<div class="footer">
+			<div class="button">
+				<button id="send_button">Send</button>
+			</div>
+			<div>
+				<p id="output">Вывод</p>
+			</div>
+		</div>
+	</body>
 </html>
