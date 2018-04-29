@@ -6,11 +6,15 @@
 	</head>
 	<body>
 		<div class="header">
-			<div class="button">
-				<!-- жалко удалять, я пытался сделать эту кнопку красивой -->
+			<div class="load_file">
+				<!-- жалко удалять: я долго пытался сделать эту кнопку красивой -->
 				<!-- <button id="load_file"><font size="2">Import C code from file</font></button> -->
-				<input type="file" id="load_file" accept="text/x-c" onclick="loadFile()">
+				<label>
+					<input type="file" id="load_file" accept="text/x-c" onclick="loadFile()">
+					<span><font size="1">Import C code from file</font></span>
+				</label>
 			</div>
+			<span><font size="1" color="#303030">Text in the "C code" field will be lost!</font></span>
 		</div>
 		<div class="middle_area">
 			<div class="column left-column">
@@ -32,12 +36,20 @@
 				<textarea id="verification_script"></textarea>
 			</div>
 			<div class="button" id="submit_container">
-				<button id="submit" onclick="sendRequest()"><font size="5">Submit</font></button>
+				<button id="submit" onclick="runTesting()"><font size="5">Send</font></button>
 			</div>
 			<div>
 				<p id="output"></p>
 			</div>
 		</div>
 		<script src="script.js"></script>
+
+		<!-- for testing -->
+		<script>
+			document.getElementById('source_code').value = 'int main() {}';
+			document.getElementById('tests_description').value = 'type: \'generated\', // only \'generated\' for today\nnumber: 100,\ntemplate: {\n    type: {type: \'value\', value: \'integer\'},\n    min: {type: \'test\', template: {...}},\n    max: {type: \'variable\', name: \'MAX\'},\n    name: {type: \'value\', value: \'n\'} // no repeats\n}';
+			document.getElementById('verification_script').value = 'def verify(raw_input, raw_output, template): return true';
+		</script>
+		<!-- ----------- -->
 	</body>
 </html>
