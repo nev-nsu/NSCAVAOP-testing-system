@@ -12,7 +12,7 @@ class TApiCallHandler(api.IHandler):
             return
 
         content_length = int(TRequestHandler.headers['Content-Length'])
-        body = TRequestHandler.rfile.read(content_length)
+        body = TRequestHandler.rfile.read(content_length).decode('utf-8')
         try:
             request = json.loads(body)
             if request['primary']:
@@ -46,7 +46,8 @@ class TApiCallHandler(api.IHandler):
 
         except json.JSONDecodeError as e:
             TRequestHandler.send_error(400, 'Bad JSON')
-            print (e)
+            print(e)
+            print(body)
         except (AttributeError, KeyError) as e:
             TRequestHandler.send_error(400, 'Bad request')
             print(e)
