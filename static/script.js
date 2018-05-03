@@ -87,9 +87,8 @@ function runTesting()
 
 					if (this.status != 200)
 					{
-						output_field.innerHTML = this.status + ': ' + this.statusText;
-
 						clearInterval(timerID);
+						output_field.innerHTML = this.status + ': ' + this.statusText;
 						send_button.innerHTML = '<font size="5">Send</font>';
 						enablePage();
 						return;
@@ -99,24 +98,24 @@ function runTesting()
 						var status = this.responseText.match(/"status": "([^"]*)"/)[1];
 						if (status == 'failed')
 						{
-							output_field.innerHTML = 'Failed\nError: ' + this.responseText.match(/"data": "([^"]*)"/)[1];
 							clearInterval(timerID);
+							output_field.innerHTML = this.responseText;
 							send_button.innerHTML = '<font size="5">Send</font>';
 							enablePage();
 							return;
 						}
-						if (status == 'finished')  //TODO в протоколе два возможных ответа, поэтому я пока не стал ответ парсить, а просто вывожу его
+						if (status == 'finished')
 						{
-							output_field.innerHTML = this.responseText;
 							clearInterval(timerID);
+							output_field.innerHTML = this.responseText;
 							send_button.innerHTML = '<font size="5">Send</font>';
 							enablePage();
 							return;
 						}
-						if (status != 'run')  //не знаю, что делать, когда приходит статус и не failed, и не finished, и не run
+						if ( (status != 'run') || (status != 'added') )
 						{
-							output_field.innerHTML = this.responseText;
 							clearInterval(timerID);
+							output_field.innerHTML = this.responseText;
 							send_button.innerHTML = '<font size="5">Send</font>';
 							enablePage();
 							return;
@@ -136,6 +135,7 @@ function runTesting()
 	catch (err)
 	{
 		alert('Tests description must be JSON.');
+		send_button.innerHTML = '<font size="5">Send</font>';
 		enablePage();
 	}
 }
