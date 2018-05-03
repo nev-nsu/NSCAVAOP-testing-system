@@ -86,6 +86,7 @@
 	padding: 5px 25px;
 	border: 1px solid #007000;
 	border-radius: 5px;
+	outline: none;
 }
 
 #submit:hover {

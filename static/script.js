@@ -1,51 +1,82 @@
+var send_button = document.getElementById('submit');
+var code_field = document.getElementById('source_code');
+var tests_description = document.getElementById('tests_description');
+var verificator = document.getElementById('verification_script');
+var file_send_button = document.getElementById('load_file');
+
+function disablePage()
+{
+	send_button.disabled = true;
+	code_field.disabled = true;
+	tests_description.disabled = true;
+	verificator.disabled = true;
+	file_send_button.disabled = true;
+}
+
+function enablePage()
+{
+	send_button.disabled = false;
+	code_field.disabled = false;
+	tests_description.disabled = false;
+	verificator.disabled = false;
+	file_send_button.disabled = false;
+}
+
 function runTesting()
 {
 	var xhr = new XMLHttpRequest();
-
-	var button = document.getElementById('submit');
-	var code_field = document.getElementById('source_code');
-	var descr_field = document.getElementById('tests_description');
-	var ver_script_field = document.getElementById('verification_script');
-
-	var prim_request = '{primary:true,type:\'run_tests\',data:{code:\'' + code_field.value + '\',options:{optimization_level:\'3\'},tests:[{' + descr_field.value + '}],verifier:\'' + ver_script_field.value + '\',response_type:\'raw_data\'}}';
-
-	xhr.open('POST', 'api/v1/test', true);
+	xhr.open('POST', '/api/v1/test', true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
 
-	button.innerHTML = '<font size="5">Sending...</font>';
-	button.disabled = true;
-	code_field.disabled = true;
-	descr_field.disabled = true;
-	ver_script_field.disabled = true;
+	send_button.innerHTML = '<font size="5">Sending...</font>';
+	disablePage();
+
+	var primary_request = JSON.stringify(
+	{
+		primary: true,
+		type: "run_tests",
+		data:
+		{
+			code: code_field.value,
+			options:
+			{
+				optimization_level: 3
+			},
+			tests: ["{" + tests_description.value + "}"],
+			verifier: verificator.value,
+			response_type: "raw_data"
+		}
+	} );
 
 	xhr.onreadystatechange = function()
 	{
 		if (this.readyState != 4)
 			return;
 
-		button.innerHTML = '<font size="5">Send</font>';
-		button.disabled = false;
-		code_field.disabled = false;
-		descr_field.disabled = false;
-		ver_script_field.disabled = false;
-
 		if (this.status != 200)
 		{
-			alert(this.status + ': ' + this.statusText);
+			document.getElementById('output').innerHTML = this.status + ': ' + this.statusText;
+			enablePage();
 			return;
 		}
 		else
 		{
-			button.innerHTML = '<font size="5">Running...</font>';
+			send_button.innerHTML = '<font size="5">Running...</font>';
 
-			var token = this.responseText.match(/token: '(.*)'/)[1];
+			document.getElementById('output').innerHTML = this.responseText;  //отладка
 
-			var update_request = 'primary:false,type:\'update_status\',token:\'' + token + '\'}';
+			var token = this.responseText.match(/"token": "([^"]*)"/)[1];
+			var update_request = JSON.stringify(
+			{
+				primary: false,
+				type: "update_status",
+				token: token
+			} );
 
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', 'api/v1/test', true);
+			xhr.open('POST', '/api/v1/test', true);
 			xhr.setRequestHeader('Content-Type', 'application/json');
-			
+
 			var status = 'run';
 			xhr.onreadystatechange = function()
 			{
@@ -57,48 +88,51 @@ function runTesting()
 					alert(this.status + ': ' + this.statusText);
 					status = 'error';
 
-					button.innerHTML = '<font size="5">Send</font>';
-					button.disabled = false;
-					code_field.disabled = false;
-					descr_field.disabled = false;
-					ver_script_field.disabled = false;
-
+					clearInterval(timerID);
+					send_button.innerHTML = '<font size="5">Send</font>';
+					enablePage();
 					return;
 				}
-				else
+				else  //здесь происходит вывод результатов
 				{
-					status = this.responseText.match(/status: '(.*)'/)[1];
-
-					if (status === 'failed')
+					status = this.responseText.match(/"status": "([^"]*)"/)[1];
+					if (status == 'failed')
 					{
 						document.getElementById('output').innerHTML = 'Failed\nError: ' + this.responseText.match(/data: '(.*)'/)[1];
+						clearInterval(timerID);
+						send_button.innerHTML = '<font size="5">Send</font>';
+						enablePage();
 						return;
 					}
-					if (status === 'finished')
+					if (status == 'finished')  //TODO в протоколе два возможных ответа, поэтому я пока не стал ответ парсить, а просто вывожу его
 					{
-						//TODO в протоколе два возсожных ответа, поэтому я пока не стал ответ парсить, а просто вывожу его
 						document.getElementById('output').innerHTML = this.responseText;
+						clearInterval(timerID);
+						send_button.innerHTML = '<font size="5">Send</font>';
+						enablePage();
+						return;
+					}
+					if (status != 'run')  //не знаю, что делать, когда приходит статус не failed, не finished и не run
+					{ 
+						document.getElementById('output').innerHTML = this.responseText;
+						clearInterval(timerID);
+						send_button.innerHTML = '<font size="5">Send</font>';
+						enablePage();
 						return;
 					}
 				}
 			}
 
-			while (status === 'run')
-			{
-				setTimeout(function() { xhr.send(request) }, 1000);
-			}
+			var timerID = setInterval( function() { xhr.send(update_request) }, 2000);
 		}
 	}
-				
-	xhr.send(prim_request);
+	xhr.send(primary_request);
 }
 
 // import code from file
 function loadFile()
 {
 	var text_field = document.getElementById('source_code');
-	if (text_field.value !== '') alert('Code in the field will be lost!');
-
 	var input = document.getElementById('load_file');
 	input.addEventListener("change", function(event)
 	{
