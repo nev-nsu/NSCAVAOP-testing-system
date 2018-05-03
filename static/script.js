@@ -31,105 +31,113 @@ function runTesting()
 
 	send_button.innerHTML = '<font size="5">Sending...</font>';
 	disablePage();
-
-	var primary_request = JSON.stringify(
+	try
 	{
-		primary: true,
-		type: "run_tests",
-		data:
+		var tests_description = JSON.parse(tests_description_field.value);
+		var primary_request = JSON.stringify(
 		{
-			code: code_field.value,
-			options:
+			primary: true,
+			type: "run_tests",
+			data:
 			{
-				optimization_level: "3"
-			},
-			tests: ["{" + tests_description_field.value + "}"],
-			verifier: verificator_field.value,
-			response_type: "raw_data"
-		}
-	} );
-
-	xhr.onreadystatechange = function()
-	{
-		if (this.readyState != 4)
-			return;
-
-		if (this.status != 200)
-		{
-			output_field.innerHTML = this.status + ': ' + this.statusText;
-			enablePage();
-			return;
-		}
-		else
-		{
-			send_button.innerHTML = '<font size="5">Running...</font>';
-
-			output_field.innerHTML = this.responseText;  //отладка
-
-			var token = this.responseText.match(/"token": "([^"]*)"/)[1];
-			var update_request = JSON.stringify(
-			{
-				primary: false,
-				type: "update_status",
-				token: token
-			} );
-
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/api/v1/test', true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-
-			xhr.onreadystatechange = function()
-			{
-				if (this.readyState != 4)
-					return;
-
-				if (this.status != 200)
+				code: code_field.value,
+				options:
 				{
-					output_field.innerHTML = this.status + ': ' + this.statusText;
-
-					clearInterval(timerID);
-					send_button.innerHTML = '<font size="5">Send</font>';
-					enablePage();
-					return;
-				}
-				else  //здесь происходит вывод результатов
-				{
-					var status = this.responseText.match(/"status": "([^"]*)"/)[1];
-					if (status == 'failed')
-					{
-						output_field.innerHTML = 'Failed\nError: ' + this.responseText.match(/"data": "([^"]*)"/)[1];
-						clearInterval(timerID);
-						send_button.innerHTML = '<font size="5">Send</font>';
-						enablePage();
-						return;
-					}
-					if (status == 'finished')  //TODO в протоколе два возможных ответа, поэтому я пока не стал ответ парсить, а просто вывожу его
-					{
-						output_field.innerHTML = this.responseText;
-						clearInterval(timerID);
-						send_button.innerHTML = '<font size="5">Send</font>';
-						enablePage();
-						return;
-					}
-					if (status != 'run')  //не знаю, что делать, когда приходит статус и не failed, и не finished, и не run
-					{
-						output_field.innerHTML = this.responseText;
-						clearInterval(timerID);
-						send_button.innerHTML = '<font size="5">Send</font>';
-						enablePage();
-						return;
-					}
-				}
+					optimization_level: "3"
+				},
+				tests: [tests_description],
+				verifier: verificator_field.value,
+				response_type: "raw_data"
 			}
-			var timerID = setInterval( function()
+		} );
+
+		xhr.onreadystatechange = function()
+		{
+			if (this.readyState != 4)
+				return;
+
+			if (this.status != 200)
 			{
+				output_field.innerHTML = this.status + ': ' + this.statusText;
+				enablePage();
+				return;
+			}
+			else
+			{
+				send_button.innerHTML = '<font size="5">Running...</font>';
+
+				output_field.innerHTML = this.responseText;  //отладка
+
+				var token = this.responseText.match(/"token": "([^"]*)"/)[1];
+				var update_request = JSON.stringify(
+				{
+					primary: false,
+					type: "update_status",
+					token: token
+				} );
+
+				var xhr = new XMLHttpRequest();
 				xhr.open('POST', '/api/v1/test', true);
 				xhr.setRequestHeader('Content-Type', 'application/json');
-				xhr.send(update_request)
-			}, 2000);
+
+				xhr.onreadystatechange = function()
+				{
+					if (this.readyState != 4)
+						return;
+
+					if (this.status != 200)
+					{
+						output_field.innerHTML = this.status + ': ' + this.statusText;
+
+						clearInterval(timerID);
+						send_button.innerHTML = '<font size="5">Send</font>';
+						enablePage();
+						return;
+					}
+					else  //здесь происходит вывод результатов
+					{
+						var status = this.responseText.match(/"status": "([^"]*)"/)[1];
+						if (status == 'failed')
+						{
+							output_field.innerHTML = 'Failed\nError: ' + this.responseText.match(/"data": "([^"]*)"/)[1];
+							clearInterval(timerID);
+							send_button.innerHTML = '<font size="5">Send</font>';
+							enablePage();
+							return;
+						}
+						if (status == 'finished')  //TODO в протоколе два возможных ответа, поэтому я пока не стал ответ парсить, а просто вывожу его
+						{
+							output_field.innerHTML = this.responseText;
+							clearInterval(timerID);
+							send_button.innerHTML = '<font size="5">Send</font>';
+							enablePage();
+							return;
+						}
+						if (status != 'run')  //не знаю, что делать, когда приходит статус и не failed, и не finished, и не run
+						{
+							output_field.innerHTML = this.responseText;
+							clearInterval(timerID);
+							send_button.innerHTML = '<font size="5">Send</font>';
+							enablePage();
+							return;
+						}
+					}
+				}
+				var timerID = setInterval( function()
+				{
+					xhr.open('POST', '/api/v1/test', true);
+					xhr.setRequestHeader('Content-Type', 'application/json');
+					xhr.send(update_request)
+				}, 2000);
+			}
 		}
+		xhr.send(primary_request);
 	}
-	xhr.send(primary_request);
+	catch (err)
+	{
+		alert('Tests description must be JSON.');
+		enablePage();
+	}
 }
 
 // import code from file
