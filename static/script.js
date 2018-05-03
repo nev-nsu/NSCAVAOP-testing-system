@@ -41,7 +41,7 @@ function runTesting()
 			code: code_field.value,
 			options:
 			{
-				optimization_level: 3
+				optimization_level: "3"
 			},
 			tests: ["{" + tests_description_field.value + "}"],
 			verifier: verificator_field.value,
@@ -97,7 +97,7 @@ function runTesting()
 					var status = this.responseText.match(/"status": "([^"]*)"/)[1];
 					if (status == 'failed')
 					{
-						output_field.innerHTML = 'Failed\nError: ' + this.responseText.match(/data: '(.*)'/)[1];
+						output_field.innerHTML = 'Failed\nError: ' + this.responseText.match(/"data": "([^"]*)"/)[1];
 						clearInterval(timerID);
 						send_button.innerHTML = '<font size="5">Send</font>';
 						enablePage();
@@ -111,8 +111,8 @@ function runTesting()
 						enablePage();
 						return;
 					}
-					if (status != 'run')  //не знаю, что делать, когда приходит статус не failed, не finished и не run
-					{ 
+					if (status != 'run')  //не знаю, что делать, когда приходит статус и не failed, и не finished, и не run
+					{
 						output_field.innerHTML = this.responseText;
 						clearInterval(timerID);
 						send_button.innerHTML = '<font size="5">Send</font>';
@@ -121,8 +121,12 @@ function runTesting()
 					}
 				}
 			}
-
-			var timerID = setInterval( function() { xhr.send(update_request) }, 2000);
+			var timerID = setInterval( function()
+			{
+				xhr.open('POST', '/api/v1/test', true);
+				xhr.setRequestHeader('Content-Type', 'application/json');
+				xhr.send(update_request)
+			}, 2000);
 		}
 	}
 	xhr.send(primary_request);
@@ -131,16 +135,14 @@ function runTesting()
 // import code from file
 function loadFile()
 {
-	var text_field = document.getElementById('source_code');
-	var input = document.getElementById('load_file');
-	input.addEventListener("change", function(event)
+	file_button.addEventListener("change", function(event)
 	{
 		var reader = new FileReader();
 
 		reader.onload = function(event)
 		{
 			var content = event.target.result;
-			text_field.value = content;
+			code_field.value = content;
 		};
 
 		reader.onerror = function(event)
@@ -148,6 +150,6 @@ function loadFile()
 			alert('Can\'t read the file. Error code: ' + event.target.error.code);
 		};
 
-		reader.readAsText(input.files[0]);		
+		reader.readAsText(file_button.files[0]);		
 	}, false);
 }
