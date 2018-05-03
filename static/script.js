@@ -1,25 +1,26 @@
 var send_button = document.getElementById('submit');
 var code_field = document.getElementById('source_code');
-var tests_description = document.getElementById('tests_description');
-var verificator = document.getElementById('verification_script');
-var file_send_button = document.getElementById('load_file');
+var tests_description_field = document.getElementById('tests_description');
+var verificator_field = document.getElementById('verification_script');
+var file_button = document.getElementById('load_file');
+var output_field = document.getElementById('output');
 
 function disablePage()
 {
 	send_button.disabled = true;
 	code_field.disabled = true;
-	tests_description.disabled = true;
-	verificator.disabled = true;
-	file_send_button.disabled = true;
+	tests_description_field.disabled = true;
+	verificator_field.disabled = true;
+	file_button.disabled = true;
 }
 
 function enablePage()
 {
 	send_button.disabled = false;
 	code_field.disabled = false;
-	tests_description.disabled = false;
-	verificator.disabled = false;
-	file_send_button.disabled = false;
+	tests_description_field.disabled = false;
+	verificator_field.disabled = false;
+	file_button.disabled = false;
 }
 
 function runTesting()
@@ -42,8 +43,8 @@ function runTesting()
 			{
 				optimization_level: 3
 			},
-			tests: ["{" + tests_description.value + "}"],
-			verifier: verificator.value,
+			tests: ["{" + tests_description_field.value + "}"],
+			verifier: verificator_field.value,
 			response_type: "raw_data"
 		}
 	} );
@@ -55,7 +56,7 @@ function runTesting()
 
 		if (this.status != 200)
 		{
-			document.getElementById('output').innerHTML = this.status + ': ' + this.statusText;
+			output_field.innerHTML = this.status + ': ' + this.statusText;
 			enablePage();
 			return;
 		}
@@ -63,7 +64,7 @@ function runTesting()
 		{
 			send_button.innerHTML = '<font size="5">Running...</font>';
 
-			document.getElementById('output').innerHTML = this.responseText;  //отладка
+			output_field.innerHTML = this.responseText;  //отладка
 
 			var token = this.responseText.match(/"token": "([^"]*)"/)[1];
 			var update_request = JSON.stringify(
@@ -77,7 +78,6 @@ function runTesting()
 			xhr.open('POST', '/api/v1/test', true);
 			xhr.setRequestHeader('Content-Type', 'application/json');
 
-			var status = 'run';
 			xhr.onreadystatechange = function()
 			{
 				if (this.readyState != 4)
@@ -85,8 +85,7 @@ function runTesting()
 
 				if (this.status != 200)
 				{
-					alert(this.status + ': ' + this.statusText);
-					status = 'error';
+					output_field.innerHTML = this.status + ': ' + this.statusText;
 
 					clearInterval(timerID);
 					send_button.innerHTML = '<font size="5">Send</font>';
@@ -95,10 +94,10 @@ function runTesting()
 				}
 				else  //здесь происходит вывод результатов
 				{
-					status = this.responseText.match(/"status": "([^"]*)"/)[1];
+					var status = this.responseText.match(/"status": "([^"]*)"/)[1];
 					if (status == 'failed')
 					{
-						document.getElementById('output').innerHTML = 'Failed\nError: ' + this.responseText.match(/data: '(.*)'/)[1];
+						output_field.innerHTML = 'Failed\nError: ' + this.responseText.match(/data: '(.*)'/)[1];
 						clearInterval(timerID);
 						send_button.innerHTML = '<font size="5">Send</font>';
 						enablePage();
@@ -106,7 +105,7 @@ function runTesting()
 					}
 					if (status == 'finished')  //TODO в протоколе два возможных ответа, поэтому я пока не стал ответ парсить, а просто вывожу его
 					{
-						document.getElementById('output').innerHTML = this.responseText;
+						output_field.innerHTML = this.responseText;
 						clearInterval(timerID);
 						send_button.innerHTML = '<font size="5">Send</font>';
 						enablePage();
@@ -114,7 +113,7 @@ function runTesting()
 					}
 					if (status != 'run')  //не знаю, что делать, когда приходит статус не failed, не finished и не run
 					{ 
-						document.getElementById('output').innerHTML = this.responseText;
+						output_field.innerHTML = this.responseText;
 						clearInterval(timerID);
 						send_button.innerHTML = '<font size="5">Send</font>';
 						enablePage();
