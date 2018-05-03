@@ -61,14 +61,14 @@ class TestingTask:
             result = { 'input': test }
             res = sandbox.execute_untrusted(test)
             if 'error' in res:
-                self.status = 'CRASH'
+                self.status = 'failed'
                 self.result = res['error']
                 yield result
             else:
                 result['output'] = sandbox.get_execution_result()
                 res = sandbox.verify_untrusted(self.verifier, test)
                 if 'error' in res:
-                    self.status = 'CRASH'
+                    self.status = 'failed'
                     self.result = res['error']
                     yield result
                 else:

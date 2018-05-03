@@ -50,8 +50,7 @@ class Sandbox:
         # change to c++
         command = '\' echo "' + code + '" | gcc -x c - -o ' + self.dir + '/executable ' + \
                 compile_options2string(options) +'\''
-        args = ['firejail', '--timeout=0:0:10', '--profile='+self.profile, 'bash', '-c', command]
-        all = 'firejail --timeout=0:0:10 --profile='+self.profile+ ' bash -c ' + command
+        all = 'firejail --timeout=0:0:10 --quiet --profile=' + self.profile + ' bash -c ' + command
         os.system(all)
         self.has_executable = True
         # check result of execution
