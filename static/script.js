@@ -25,6 +25,8 @@ function enablePage()
 
 function runTesting()
 {
+	output_field.innerHTML = '';
+
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST', '/api/v1/test', true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
@@ -36,7 +38,6 @@ function runTesting()
 		var tests_description = JSON.parse(tests_description_field.value);
 		var primary_request = JSON.stringify(
 		{
-			primary: true,
 			type: "run_tests",
 			data:
 			{
@@ -71,7 +72,6 @@ function runTesting()
 				var token = this.responseText.match(/"token": "([^"]*)"/)[1];
 				var update_request = JSON.stringify(
 				{
-					primary: false,
 					type: "update_status",
 					token: token
 				} );
@@ -112,7 +112,7 @@ function runTesting()
 							enablePage();
 							return;
 						}
-						if ( (status != 'run') || (status != 'added') )
+						if ( (status != 'run') && (status != 'added') )
 						{
 							clearInterval(timerID);
 							output_field.innerHTML = this.responseText;
