@@ -112,7 +112,7 @@ function runTesting()
 							enablePage();
 							return;
 						}
-						if ( (status != 'run') || (status != 'added') )
+						if ( (status != 'run') && (status != 'added') )
 						{
 							clearInterval(timerID);
 							output_field.innerHTML = this.responseText;

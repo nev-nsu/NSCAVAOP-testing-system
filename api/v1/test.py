@@ -15,34 +15,29 @@ class TApiCallHandler(api.IHandler):
         body = TRequestHandler.rfile.read(content_length).decode('utf-8')
         try:
             request = json.loads(body)
-            if request['primary']:
-                type = request['type']
-                if type == 'run_tests':
-                    task = TestingTask(request['data']['code'], request['data']['options'], 
-                                       request['data']['tests'], request['data']['verifier'], request['data']['response_type'])
-                    self.tasks[task.number] = task
-                    response = { 'status': 'added', 'token': task.number, 'finished': False }  
-                    self.send_answer(TRequestHandler, response)
-                    task.start()
-                else:
-                    TRequestHandler.send_error(400, 'Bad request type')
+            if type == 'run_tests':
+                task = TestingTask(request['data']['code'], request['data']['options'], 
+                                   request['data']['tests'], request['data']['verifier'], request['data']['response_type'])
+                self.tasks[task.number] = task
+                response = { 'status': 'added', 'token': task.number }  
+                self.send_answer(TRequestHandler, response)
+                task.start()
+            elif type == 'update_status':
+                num = request['token']
+                if not num in self.tasks:
+                    response = { 'status': 'not_found' }  
+                else :
+                    task = self.tasks[num]
+                    status = task.status
+                    if status == 'finished' or status == 'failed':
+                        response = { 'status' : status, 'result' : task.result}
+                        self.tasks.pop(num, None)
+                    else:
+                        response = { 'status' : status }
+                print(repr(response))
+                self.send_answer(TRequestHandler, response)
             else:
-                type = request['type']
-                if type == 'update_status':
-                    num = request['token']
-                    if not num in self.tasks:
-                        response = { 'status': 'not_found' }  
-                    else :
-                        task = self.tasks[num]
-                        status = task.status
-                        if status == 'finished' or status == 'failed':
-                            response = { 'status' : status, 'result' : task.result, 'finished': True}
-                            self.tasks.pop(num, None)
-                        else:
-                            response = { 'status' : status, 'finished' : False }
-                    self.send_answer(TRequestHandler, response)
-                else:
-                    TRequestHandler.send_error(400, 'Bad request type')
+                TRequestHandler.send_error(400, 'Bad request type')
 
         except json.JSONDecodeError as e:
             TRequestHandler.send_error(400, 'Bad JSON')

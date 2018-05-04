@@ -19,11 +19,8 @@ class Generator:
     def generate(self):
         try:
             for group in self.tests:
-                if group['type'] == 'generated':
-                    for i in range(group['number']):
-                        yield self.__generate_instance__(group['template'])
-                else:
-                    raise UnknownType()
+                for i in range(group['number']):
+                    yield self.__generate_instance__(group['template'])
         except (AttributeError, KeyError):
             raise BadTemplate()
                 
