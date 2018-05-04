@@ -15,6 +15,7 @@ class TApiCallHandler(api.IHandler):
         body = TRequestHandler.rfile.read(content_length).decode('utf-8')
         try:
             request = json.loads(body)
+            type = request['type']
             if type == 'run_tests':
                 task = TestingTask(request['data']['code'], request['data']['options'], 
                                    request['data']['tests'], request['data']['verifier'], request['data']['response_type'])
