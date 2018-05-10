@@ -29,6 +29,7 @@ class TApiCallHandler(api.IHandler):
                     response = { 'status': 'not_found' }  
                 else :
                     task = self.tasks[num]
+                    # it's thread safety operation, don't need locks here
                     status = task.status
                     if status == 'finished' or status == 'failed':
                         response = { 'status' : status, 'result' : task.result}

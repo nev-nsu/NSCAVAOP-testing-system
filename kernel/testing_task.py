@@ -1,7 +1,10 @@
+import config
 from kernel.generate import *
 from kernel.sandbox import Sandbox
 from uuid import uuid4
-import threading
+from multiprocessing.dummy import Pool as ThreadPool
+
+threadPool = ThreadPool(config.WORKERS)
 
 class TestingTask:
     def __init__(self, code, options, tests, verifier, response):
@@ -13,11 +16,9 @@ class TestingTask:
         self.response = response
         # generate a token
         self.number = str(uuid4())
-        # create thread for the task
-        self.worker = threading.Thread(target=self.execute)
         
     def start(self):
-        self.worker.start()
+        threadPool.apply_async(self.execute, ())
 
     def execute(self):
         try:

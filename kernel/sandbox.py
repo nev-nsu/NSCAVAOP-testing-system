@@ -47,8 +47,7 @@ class Sandbox:
         return {}
 
     def compile_untrusted(self, code, options):
-        # change to c++
-        command = '\' echo "' + code + '" | gcc -x c - -o ' + self.dir + '/executable ' + \
+        command = '\' echo "' + code + '" | gcc -x c++ - -o ' + self.dir + '/executable ' + \
                 compile_options2string(options) +'\''
         all = 'firejail --timeout=0:0:10 --quiet --profile=' + self.profile + ' bash -c ' + command
         os.system(all)

@@ -4,6 +4,7 @@ import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import config
 from api.api import ApiProxy
+from kernel.testing_task import threadPool as pool
 
 api_proxy = ApiProxy()
 
@@ -52,10 +53,12 @@ class TRequestHandler(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     try:
+        if not os.path.exists(config.TEMP_DIR):
+            os.mkdir(config.TEMP_DIR)
+
         server = HTTPServer(('', config.DEFAULT_PORT), TRequestHandler)
         print('Started on port', config.DEFAULT_PORT)
         server.serve_forever()
-
     except KeyboardInterrupt:
         print('Shutting down the server...')
     except Exception as e:
@@ -63,3 +66,6 @@ if __name__ == '__main__':
         print("Aborted")
 
     server.socket.close()
+    # kill all of us
+    pool.terminate()
+    pool.join()
