@@ -1,24 +1,27 @@
 Base schema
 ===========
-- Primary request (primary = true, type, data)
-- Primary response (status, token, data, finished = false)
-- Request (primary = false, token, type, data)
-- Responce (status, data, finished = true)
+- Primary request (type, data)
+- Primary response (status, token, data)
+- Request (token, type, data)
+- Responce (status, data)
+
+All requests are in JSON format.
 
 Types
 =====
 - Testing request "run_tests"
 - Update status request "update_status"
-- Commutation request "commutation" (in future for non-generated tests)
 - Interrupt request "stop"
 
 Status is one of: *ADDED*, *COMPILATION*, *FAILED*, *TESTING*, *FINISHED*, *NOT_FOUND*. Case doesn't matter. 
 
+Exmaples (JavaScript object, not string representation!):
+
 Testing request
 ---------------
+Client-to-Server:
 ```json
 {
-    primary: true,
     type: 'run_tests',
     data: {
         code: 'int main() {}',
@@ -26,16 +29,15 @@ Testing request
             optimization_level: '3' // only optimization level for today
         },
         tests: [{
-            type: 'generated', // only 'generated' for today
             number: 100,
             template: {
                 type: {type: 'value', value: 'integer'},
-                min: {type: 'test', template: {...}},
-                max: {type: 'variable', name: 'MAX'},
+                min: {type: 'value', value: -10},
+                max: {type: 'value', value: 10},
                 name: {type: 'value', value: 'n'} // no repeats
             }
         }],
-        verifier: 'def verify(raw_input, raw_output, template): return true',
+        verifier: 'print (\'OK\')',
         response_type: 'raw_data' // or 'failed_only' or 'statistic'
     }
 }
@@ -43,24 +45,25 @@ Testing request
 
 In templates parameters must be objects with field **type** on of: *value* (and field **value**), *variable* (and field **name**), *test* (and filed **template**).
 
+Server-to-Client:
 ```json
 {
     status: 'added',
-    token: '42fefr5rfdeje8345',
-    finished: false
+    token: '42fefr5rfdeje8345'
 }
 ```
 
 Update request
 --------------
+Client-to-Server:
 ```json
 {
-    primary: false,
     type: 'update_status',
-    token: '434fjfm438rt',
+    token: '434fjfm438rt'
 }
 ```
 
+Server-to-Client:
 ```json
 {
     status: 'finished',
@@ -96,15 +99,18 @@ Update request
 
 Interrupt request
 -----------------
+Client-to-Server:
 ```json
 {
-    primary: false,
     type: 'stop',
     token: 'ferifmu3dsf23r9dosc'
 }
+```
 
+Server-to-Client:
 ```json
 {
     status: 'failed',
     data: 'aborted by user request'
 }
+```
