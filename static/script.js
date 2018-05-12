@@ -27,14 +27,15 @@ function runTesting()
 {
 	output_field.innerHTML = '';
 
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', '/api/v1/test', true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-
-	send_button.innerHTML = '<font size="5">Sending...</font>';
-	disablePage();
 	try
 	{
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', '/api/v1/test', true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+
+		send_button.innerHTML = '<font size="5">Sending...</font>';
+		disablePage();
+
 		var tests_description = JSON.parse(tests_description_field.value);
 		var primary_request = JSON.stringify(
 		{
@@ -87,7 +88,6 @@ function runTesting()
 
 					if (this.status != 200)
 					{
-						clearInterval(timerID);
 						output_field.innerHTML = this.status + ': ' + this.statusText;
 						send_button.innerHTML = '<font size="5">Send</font>';
 						enablePage();
@@ -96,9 +96,8 @@ function runTesting()
 					else  //здесь происходит вывод результатов
 					{
 						var status = this.responseText.match(/"status": "([^"]*)"/)[1];
-						if (status == 'failed')
+						/*if (status == 'failed')
 						{
-							clearInterval(timerID);
 							output_field.innerHTML = this.responseText;
 							send_button.innerHTML = '<font size="5">Send</font>';
 							enablePage();
@@ -106,7 +105,6 @@ function runTesting()
 						}
 						if (status == 'finished')
 						{
-							clearInterval(timerID);
 							output_field.innerHTML = this.responseText;
 							send_button.innerHTML = '<font size="5">Send</font>';
 							enablePage();
@@ -114,20 +112,19 @@ function runTesting()
 						}
 						if ( (status != 'run') && (status != 'added') )
 						{
-							clearInterval(timerID);
 							output_field.innerHTML = this.responseText;
 							send_button.innerHTML = '<font size="5">Send</font>';
 							enablePage();
 							return;
-						}
+						}*/
+						output_field.innerHTML = this.responseText;
+						send_button.innerHTML = '<font size="5">Send</font>';
+						enablePage();
+						return;
 					}
 				}
-				var timerID = setInterval( function()
-				{
-					xhr.open('POST', '/api/v1/test', true);
-					xhr.setRequestHeader('Content-Type', 'application/json');
-					xhr.send(update_request)
-				}, 2000);
+
+				xhr.send(update_request);
 			}
 		}
 		xhr.send(primary_request);
