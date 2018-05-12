@@ -1,9 +1,10 @@
-from api import api
+from api.handler import IHandler
 
-class TApiCallHandler(api.IHandler):
-    def handle(self, TRequestHandler):
-        TRequestHandler.send_response(200)
-        TRequestHandler.send_header('Content-type','text-html')
-        TRequestHandler.end_headers()
-        TRequestHandler.wfile.write(b"Hello world!")
+class TApiCallHandler(IHandler):
+    def handle(self, handler):
+        handler.send_response(200)
+        handler.send_header('Content-type','text-html')
+        handler.end_headers()
+        handler.wfile.write(b"Hello world!")
         return
+

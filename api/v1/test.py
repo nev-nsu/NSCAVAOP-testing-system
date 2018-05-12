@@ -1,27 +1,27 @@
-from api import api
-from kernel.testing_task import TestingTask
+from api.handler import IHandler
+from kernel.testing_task import TTestingTask
 import json
 
-class TApiCallHandler(api.IHandler):
+class TApiCallHandler(IHandler):
     tasks = {}
 
-    def handle(self, TRequestHandler):
-        content_type = TRequestHandler.headers['Content-Type']
+    def handle(self, handler):
+        content_type = handler.headers['Content-Type']
         if content_type.lower() != 'application/json':
-            TRequestHandler.send_error(400, 'Bad request')
+            handler.send_error(400, 'Bad request')
             return
 
-        content_length = int(TRequestHandler.headers['Content-Length'])
-        body = TRequestHandler.rfile.read(content_length).decode('utf-8')
+        content_length = int(handler.headers['Content-Length'])
+        body = handler.rfile.read(content_length).decode('utf-8')
         try:
             request = json.loads(body)
             type = request['type']
             if type == 'run_tests':
-                task = TestingTask(request['data']['code'], request['data']['options'], 
+                task = TTestingTask(request['data']['code'], request['data']['options'], 
                                    request['data']['tests'], request['data']['verifier'], request['data']['response_type'])
                 self.tasks[task.number] = task
                 response = { 'status': 'added', 'token': task.number }  
-                self.send_answer(TRequestHandler, response)
+                self.send_answer(handler, response)
                 task.start()
             elif type == 'update_status':
                 num = request['token']
@@ -37,16 +37,16 @@ class TApiCallHandler(api.IHandler):
                     else:
                         response = { 'status' : status }
                 print(repr(response))
-                self.send_answer(TRequestHandler, response)
+                self.send_answer(handler, response)
             else:
-                TRequestHandler.send_error(400, 'Bad request type')
+                handler.send_error(400, 'Bad request type')
 
         except json.JSONDecodeError as e:
-            TRequestHandler.send_error(400, 'Bad JSON')
+            handler.send_error(400, 'Bad JSON')
             print(e)
             print(body)
         except (AttributeError, KeyError) as e:
-            TRequestHandler.send_error(400, 'Bad request')
+            handler.send_error(400, 'Bad request')
             print(e)
             return
    

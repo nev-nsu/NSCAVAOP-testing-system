@@ -1,17 +1,10 @@
-from abc import ABCMeta, abstractmethod
+import metas
+
 from os import sep, path, listdir
 import glob
 import sys
 
-class IHandler:
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def handle(self, TRequestHandler):
-        """Handle request"""
-
-
-class ApiProxy:
+class SApiProxy(metaclass=metas.Singleton):
     def __init__(self):
         self.handlers = {}
         dir = path.dirname(__file__)

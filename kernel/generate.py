@@ -32,7 +32,7 @@ class MissingParameter(Exception):
         message = "Bad template: not optional parameter '" + name + "' is missing"
         super().__init__(message)
 
-class Generator:
+class TGenerator:
     def __init__(self, tests):
         self.tests = tests
 

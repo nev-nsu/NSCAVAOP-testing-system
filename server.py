@@ -1,17 +1,17 @@
 #!/usr/bin/python
 
-import os
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import config
-from api.api import ApiProxy
-from kernel.testing_task import threadPool as pool
+import metas
+from config import SConfig
+from api.api_proxy import SApiProxy
+from kernel.thread_pool import SThreadPool
 
-api_proxy = ApiProxy()
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import os
 
 class TRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
-            self.path += config.DEFAULT_PAGE
+            self.path += SConfig().DEFAULT_PAGE
         try:
             mime_type = ''
             type_supported = True
@@ -30,7 +30,7 @@ class TRequestHandler(BaseHTTPRequestHandler):
                 type_supported = False
 
             if type_supported:
-                f = open(config.STATIC_PATH + os.sep + self.path, 'rb') 
+                f = open(SConfig().STATIC_PATH + os.sep + self.path, 'rb') 
                 self.send_response(200)
                 self.send_header('Content-type', mime_type)
                 self.end_headers()
@@ -47,25 +47,32 @@ class TRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path.startswith('/api'):
-            api_proxy.handle(self.path, self)
+            SApiProxy().handle(self.path, self)
         else:
             self.send_error(404, 'File Not Found: ' + self.path)
 
+class STestingServer(metaclass=metas.Singleton):
+    def __init__(self):
+        if not os.path.exists(SConfig().TEMP_DIR):
+            os.mkdir(SConfig().TEMP_DIR)
+        self.server = HTTPServer(('', SConfig().DEFAULT_PORT), TRequestHandler)
+       
+    def start(self):
+        print('Started on port', SConfig().DEFAULT_PORT)
+        self.server.serve_forever()
+    
+    def stop(self):
+        self.server.socket.close()
+
 if __name__ == '__main__':
     try:
-        if not os.path.exists(config.TEMP_DIR):
-            os.mkdir(config.TEMP_DIR)
-
-        server = HTTPServer(('', config.DEFAULT_PORT), TRequestHandler)
-        print('Started on port', config.DEFAULT_PORT)
-        server.serve_forever()
+        STestingServer().start()
     except KeyboardInterrupt:
         print('Shutting down the server...')
     except Exception as e:
         print(str(e))
         print("Aborted")
 
-    server.socket.close()
-    # kill all of us
-    pool.terminate()
-    pool.join()
+    STestingServer().stop()
+    SThreadPool().terminate()
+

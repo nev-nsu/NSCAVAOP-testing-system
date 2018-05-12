@@ -1,12 +1,11 @@
 import config
 from kernel.generate import *
-from kernel.sandbox import Sandbox
+from kernel.sandbox import TSandbox
+from kernel.thread_pool import SThreadPool 
+
 from uuid import uuid4
-from multiprocessing.dummy import Pool as ThreadPool
 
-threadPool = ThreadPool(config.WORKERS)
-
-class TestingTask:
+class TTestingTask:
     def __init__(self, code, options, tests, verifier, response):
         self.status = 'added'
         self.code = code
@@ -18,18 +17,18 @@ class TestingTask:
         self.number = str(uuid4())
         
     def start(self):
-        threadPool.apply_async(self.execute, ())
+        SThreadPool().addTask(self.execute, ())
 
     def execute(self):
         try:
-            sb = Sandbox(self.number)
+            sb = TSandbox(self.number)
             res = sb.compile_untrusted(self.code, self.options)
             if 'error' in res:
                 self.status = 'failed'
                 self.result = res['error']
                 return
             self.status = 'compiled'
-            gen = Generator(self.tests)
+            gen = TGenerator(self.tests)
             self.status = 'run'
             try:
                 if self.response == 'statistics':

@@ -1,5 +1,5 @@
+from config import SConfig
 import os
-import config
 
 def compile_options2string(options):
     res = ''
@@ -7,15 +7,15 @@ def compile_options2string(options):
         res += '-O' + options['optimization_level'] + ' '
     return res
 
-class Sandbox:
+class TSandbox:
     def __init__(self, token):
         self.token = token
         self.has_executable = False
         self.has_output = False
-        self.dir = config.TEMP_DIR + '/.' + token
+        self.dir = SConfig().TEMP_DIR + '/.' + token
         text = 'noblacklist ' + self.dir + '\n' + \
                'whitelist ' + self.dir + '\n' + \
-               'include ' + config.SANDBOX_PROFILE + '\n'
+               'include ' + SConfig().SANDBOX_PROFILE + '\n'
         if not os.path.exists(self.dir):
             os.mkdir(self.dir)
         self.profile = os.path.join(self.dir, 'generated.profile')
