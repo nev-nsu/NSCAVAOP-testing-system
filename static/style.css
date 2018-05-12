@@ -53,6 +53,10 @@
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#DFDFDF', endColorstr='#DDDDDD');
 }
 
+.load_file:disabled {
+	background: #DFDFDF;
+}
+
 .load_file input[type="file"] {
 	display: none;
 }
