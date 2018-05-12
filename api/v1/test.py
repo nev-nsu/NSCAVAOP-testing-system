@@ -2,11 +2,19 @@ import json
 from api.handler import IHandler
 from kernel.testing_task import TTestingTask
 
-
 def send_answer(request, response):
     request.send_response(200)
+    data = bytes(json.dumps(response), 'utf-8')
+    request.send_header('Content-Length', len(data))
+    request.send_header('Connection', 'close')
     request.end_headers()
-    request.wfile.write(bytes(json.dumps(response), 'utf-8'))
+    request.wfile.write(data)
+    request.wfile.flush()
+
+def send_result(request, task):
+    status = task.status
+    response = {'status': status, 'result': task.result}
+    send_answer(request, response)
 
 class TApiCallHandler(IHandler):
     tasks = {}
@@ -32,22 +40,15 @@ class TApiCallHandler(IHandler):
                 self.tasks[task.number] = task
                 response = {'status': 'added', 'token': task.number}
                 send_answer(handler, response)
-                task.start()
             elif type == 'update_status':
                 num = request['token']
                 if num not in self.tasks:
                     response = {'status': 'not_found'}
+                    send_answer(handler, response)
                 else:
                     task = self.tasks[num]
-                    # it's thread safety operation, don't need locks here
-                    status = task.status
-                    if status == 'finished' or status == 'failed':
-                        response = {'status': status, 'result': task.result}
-                        self.tasks.pop(num, None)
-                    else:
-                        response = {'status': status}
-                print(repr(response))
-                send_answer(handler, response)
+                    callback = lambda tt: send_result(handler, tt) 
+                    task.start(callback)
             else:
                 handler.send_error(400, 'Bad request type')
 

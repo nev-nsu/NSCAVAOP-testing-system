@@ -2,6 +2,7 @@
 
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from socketserver import ThreadingMixIn
 import metas
 from config import SConfig
 from api.api_proxy import SApiProxy
@@ -9,6 +10,8 @@ from kernel.thread_pool import SThreadPool
 
 
 class TRequestHandler(BaseHTTPRequestHandler):
+    protocol_version = 'HTTP/1.1'
+
     def do_GET(self):
         if self.path == '/':
             self.path += SConfig().DEFAULT_PAGE
@@ -31,10 +34,13 @@ class TRequestHandler(BaseHTTPRequestHandler):
 
             if type_supported:
                 with open(SConfig().STATIC_PATH + os.sep + self.path, 'rb') as file:
+                    data = file.read()
                     self.send_response(200)
                     self.send_header('Content-type', mime_type)
+                    self.send_header('Content-Length', len(data))
+                    self.send_header('Connection', 'close')
                     self.end_headers()
-                    self.wfile.write(file.read())
+                    self.wfile.write(data)
             else:
                 self.send_error(415, 'Unsupported Media Type')
 
@@ -50,12 +56,14 @@ class TRequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_error(404, 'File Not Found: ' + self.path)
 
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    """Handle requests in a separate thread."""
 
 class STestingServer(metaclass=metas.Singleton):
     def __init__(self):
         if not os.path.exists(SConfig().TEMP_DIR):
             os.mkdir(SConfig().TEMP_DIR)
-        self.server = HTTPServer(('', SConfig().DEFAULT_PORT), TRequestHandler)
+        self.server = ThreadedHTTPServer(('', SConfig().DEFAULT_PORT), TRequestHandler)
 
     def start(self):
         print('Started on port', SConfig().DEFAULT_PORT)

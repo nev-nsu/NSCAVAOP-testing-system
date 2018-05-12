@@ -17,7 +17,8 @@ class TTestingTask:
         self.number = str(uuid4())
         self.result = {}
 
-    def start(self):
+    def start(self, callback):
+        self.callback = callback
         SThreadPool().add(self.execute, ())
 
     def execute(self):
@@ -41,9 +42,11 @@ class TTestingTask:
                 elif self.response == 'raw_data' or result['status'] != 'OK':
                     self.result.append([result])
             self.status = 'finished'
+            self.callback(self)
         except Exception as e:
             self.status = 'failed'
             self.result = str(e)
+            self.callback(self)
 
     def testing(self, sandbox, generator):
         for test in generator.generate():
