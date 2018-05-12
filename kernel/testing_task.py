@@ -1,9 +1,9 @@
-import config
-from kernel.generate import *
-from kernel.sandbox import TSandbox
-from kernel.thread_pool import SThreadPool 
-
 from uuid import uuid4
+import config
+from kernel import generate
+from kernel.sandbox import TSandbox
+from kernel.thread_pool import SThreadPool
+
 
 class TTestingTask:
     def __init__(self, code, options, tests, verifier, response):
@@ -15,9 +15,10 @@ class TTestingTask:
         self.response = response
         # generate a token
         self.number = str(uuid4())
-        
+        self.result = {}
+
     def start(self):
-        SThreadPool().addTask(self.execute, ())
+        SThreadPool().add(self.execute, ())
 
     def execute(self):
         try:
@@ -28,37 +29,25 @@ class TTestingTask:
                 self.result = res['error']
                 return
             self.status = 'compiled'
-            gen = TGenerator(self.tests)
+            gen = generate.TGenerator(self.tests)
             self.status = 'run'
-            try:
+            if self.response == 'statistics':
+                self.result = {}
+            else:
+                self.result = []
+            for result in self.testing(sb, gen):
                 if self.response == 'statistics':
-                    self.result = {}
-                else:
-                    self.result = []
-                for result in self.testing(sb, gen):
-                    if self.response == 'statistics':
-                        self.result[result['status']] += 1
-                    elif self.response == 'raw_data' or result['status'] != 'OK':
-                        self.result.append([result])
-                self.status = 'finished'
-            except UnresolvedVariableName:
-                self.status = 'failed'
-                self.result = 'Bad test template: unresolved variable name'
-            except UnknownType:
-                self.status = 'failed'
-                self.result = 'Bad test template: unknown type'
-            except BadTemplate:
-                self.status = 'failed'
-                self.result = 'Bad test template'
-        except KeyboardInterrupt as e:
-            raise e
+                    self.result[result['status']] += 1
+                elif self.response == 'raw_data' or result['status'] != 'OK':
+                    self.result.append([result])
+            self.status = 'finished'
         except Exception as e:
             self.status = 'failed'
             self.result = str(e)
 
     def testing(self, sandbox, generator):
         for test in generator.generate():
-            result = { 'input': test }
+            result = {'input': test}
             res = sandbox.execute_untrusted(test)
             if 'error' in res:
                 self.status = 'failed'

@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
+import os
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import metas
 from config import SConfig
 from api.api_proxy import SApiProxy
 from kernel.thread_pool import SThreadPool
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import os
 
 class TRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -15,7 +15,7 @@ class TRequestHandler(BaseHTTPRequestHandler):
         try:
             mime_type = ''
             type_supported = True
-            
+
             if self.path.endswith('.html'):
                 mime_type = 'text/html'
             elif self.path.endswith('.jpg'):
@@ -30,12 +30,11 @@ class TRequestHandler(BaseHTTPRequestHandler):
                 type_supported = False
 
             if type_supported:
-                f = open(SConfig().STATIC_PATH + os.sep + self.path, 'rb') 
-                self.send_response(200)
-                self.send_header('Content-type', mime_type)
-                self.end_headers()
-                self.wfile.write(f.read())
-                f.close()
+                with open(SConfig().STATIC_PATH + os.sep + self.path, 'rb') as file:
+                    self.send_response(200)
+                    self.send_header('Content-type', mime_type)
+                    self.end_headers()
+                    self.wfile.write(file.read())
             else:
                 self.send_error(415, 'Unsupported Media Type')
 
@@ -51,18 +50,20 @@ class TRequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_error(404, 'File Not Found: ' + self.path)
 
+
 class STestingServer(metaclass=metas.Singleton):
     def __init__(self):
         if not os.path.exists(SConfig().TEMP_DIR):
             os.mkdir(SConfig().TEMP_DIR)
         self.server = HTTPServer(('', SConfig().DEFAULT_PORT), TRequestHandler)
-       
+
     def start(self):
         print('Started on port', SConfig().DEFAULT_PORT)
         self.server.serve_forever()
-    
+
     def stop(self):
         self.server.socket.close()
+
 
 if __name__ == '__main__':
     try:
@@ -75,4 +76,3 @@ if __name__ == '__main__':
 
     STestingServer().stop()
     SThreadPool().terminate()
-
