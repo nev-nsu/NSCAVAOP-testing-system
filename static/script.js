@@ -23,13 +23,13 @@ function enablePage()
 	file_button.disabled = false;
 }
 
-function saveToken(token)
+function saveTokenToCookie(token)
 {
 	var date = new Date(new Date().getTime() + 3600 * 1000);
 	document.cookie = "token=" + token + "; expires=" + date.toUTCString();
 }
 
-function deleteToken()
+function deleteTokenFromCookie()
 {
 	var date = new Date(0);
 	document.cookie = "token=; expires=" + date.toUTCString();
@@ -52,10 +52,27 @@ function updateRequestReadystatechangeHandler()
 		//var status = this.responseText.match(/"status": "([^"]*)"/)[1];
 		output_field.innerHTML = this.responseText;
 		send_button.innerHTML = '<font size="5">Send</font>';
-		deleteToken();
+		deleteTokenFromCookie();
 		enablePage();
 		return;
 	}
+}
+
+function sendUpdateRequest(token)
+{
+	var update_request = JSON.stringify(
+	{
+		type: "update_status",
+		token: token
+	} );
+
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', '/api/v1/test', true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+
+	xhr.onreadystatechange = updateRequestReadystatechangeHandler;
+
+	xhr.send(update_request);
 }
 
 function primaryRequestReadystatechangeHandler()
@@ -75,24 +92,13 @@ function primaryRequestReadystatechangeHandler()
 		output_field.innerHTML = this.responseText;  //отладка
 
 		var token = this.responseText.match(/"token": "([^"]*)"/)[1];
-		saveToken(token);
-		var update_request = JSON.stringify(
-		{
-			type: "update_status",
-			token: token
-		} );
+		saveTokenToCookie(token);
 
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', '/api/v1/test', true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-
-		xhr.onreadystatechange = updateRequestReadystatechangeHandler;
-
-		xhr.send(update_request);
+		sendUpdateRequest(token);
 	}
 }
 
-function runTesting()
+function sendRunTestingRequest()
 {
 	try
 	{
@@ -104,6 +110,7 @@ function runTesting()
 		xhr.open('POST', '/api/v1/test', true);
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		var tests_description = JSON.parse(tests_description_field.value);
+		var op_lvl = document.getElementById('optimization_level_selector').value.match(/-O(.*)/)[1];
 		var primary_request = JSON.stringify(
 		{
 			type: "run_tests",
@@ -112,7 +119,7 @@ function runTesting()
 				code: code_field.value,
 				options:
 				{
-					optimization_level: "3"
+					optimization_level: op_lvl
 				},
 				tests: [tests_description],
 				verifier: verificator_field.value,
@@ -126,7 +133,7 @@ function runTesting()
 	}
 	catch (err)
 	{
-		alert('Error.\n' + err.name + ':' + err.message + '\n' + err.stack);
+		alert('Error.\n\n' + err.name + ':' + err.message + '\n\n' + err.stack);
 		send_button.innerHTML = '<font size="5">Send</font>';
 		enablePage();
 	}

@@ -70,6 +70,10 @@
 	line-height: 20px;
 }
 
+.select_container {
+	float: right;
+}
+
 .middle_area {
 	clear: both;
 }
