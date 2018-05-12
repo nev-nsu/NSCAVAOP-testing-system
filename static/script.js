@@ -23,19 +23,86 @@ function enablePage()
 	file_button.disabled = false;
 }
 
-function runTesting()
+function saveToken(token)
 {
-	output_field.innerHTML = '';
+	var date = new Date(new Date().getTime() + 3600 * 1000);
+	document.cookie = "token=" + token + "; expires=" + date.toUTCString();
+}
 
-	try
+function deleteToken()
+{
+	var date = new Date(0);
+	document.cookie = "token=; expires=" + date.toUTCString();
+}
+
+function updateRequestReadystatechangeHandler()
+{
+	if (this.readyState != 4)
+		return;
+
+	if (this.status != 200)
 	{
+		output_field.innerHTML = this.status + ': ' + this.statusText;
+		send_button.innerHTML = '<font size="5">Send</font>';
+		enablePage();
+		return;
+	}
+	else  //здесь происходит вывод результатов
+	{
+		//var status = this.responseText.match(/"status": "([^"]*)"/)[1];
+		output_field.innerHTML = this.responseText;
+		send_button.innerHTML = '<font size="5">Send</font>';
+		deleteToken();
+		enablePage();
+		return;
+	}
+}
+
+function primaryRequestReadystatechangeHandler()
+{
+	if (this.readyState != 4)
+		return;
+
+	if (this.status != 200)
+	{
+		output_field.innerHTML = this.status + ': ' + this.statusText;
+		enablePage();
+		return;
+	}
+	else
+	{
+		send_button.innerHTML = '<font size="5">Running...</font>';
+		output_field.innerHTML = this.responseText;  //отладка
+
+		var token = this.responseText.match(/"token": "([^"]*)"/)[1];
+		saveToken(token);
+		var update_request = JSON.stringify(
+		{
+			type: "update_status",
+			token: token
+		} );
+
 		var xhr = new XMLHttpRequest();
 		xhr.open('POST', '/api/v1/test', true);
 		xhr.setRequestHeader('Content-Type', 'application/json');
 
+		xhr.onreadystatechange = updateRequestReadystatechangeHandler;
+
+		xhr.send(update_request);
+	}
+}
+
+function runTesting()
+{
+	try
+	{
+		output_field.innerHTML = '';
 		send_button.innerHTML = '<font size="5">Sending...</font>';
 		disablePage();
 
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', '/api/v1/test', true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
 		var tests_description = JSON.parse(tests_description_field.value);
 		var primary_request = JSON.stringify(
 		{
@@ -53,85 +120,13 @@ function runTesting()
 			}
 		} );
 
-		xhr.onreadystatechange = function()
-		{
-			if (this.readyState != 4)
-				return;
+		xhr.onreadystatechange = primaryRequestReadystatechangeHandler;
 
-			if (this.status != 200)
-			{
-				output_field.innerHTML = this.status + ': ' + this.statusText;
-				enablePage();
-				return;
-			}
-			else
-			{
-				send_button.innerHTML = '<font size="5">Running...</font>';
-
-				output_field.innerHTML = this.responseText;  //отладка
-
-				var token = this.responseText.match(/"token": "([^"]*)"/)[1];
-				var update_request = JSON.stringify(
-				{
-					type: "update_status",
-					token: token
-				} );
-
-				var xhr = new XMLHttpRequest();
-				xhr.open('POST', '/api/v1/test', true);
-				xhr.setRequestHeader('Content-Type', 'application/json');
-
-				xhr.onreadystatechange = function()
-				{
-					if (this.readyState != 4)
-						return;
-
-					if (this.status != 200)
-					{
-						output_field.innerHTML = this.status + ': ' + this.statusText;
-						send_button.innerHTML = '<font size="5">Send</font>';
-						enablePage();
-						return;
-					}
-					else  //здесь происходит вывод результатов
-					{
-						var status = this.responseText.match(/"status": "([^"]*)"/)[1];
-						/*if (status == 'failed')
-						{
-							output_field.innerHTML = this.responseText;
-							send_button.innerHTML = '<font size="5">Send</font>';
-							enablePage();
-							return;
-						}
-						if (status == 'finished')
-						{
-							output_field.innerHTML = this.responseText;
-							send_button.innerHTML = '<font size="5">Send</font>';
-							enablePage();
-							return;
-						}
-						if ( (status != 'run') && (status != 'added') )
-						{
-							output_field.innerHTML = this.responseText;
-							send_button.innerHTML = '<font size="5">Send</font>';
-							enablePage();
-							return;
-						}*/
-						output_field.innerHTML = this.responseText;
-						send_button.innerHTML = '<font size="5">Send</font>';
-						enablePage();
-						return;
-					}
-				}
-
-				xhr.send(update_request);
-			}
-		}
 		xhr.send(primary_request);
 	}
 	catch (err)
 	{
-		alert('Tests description must be JSON.');
+		alert('Error.\n' + err.name + ':' + err.message + '\n' + err.stack);
 		send_button.innerHTML = '<font size="5">Send</font>';
 		enablePage();
 	}
