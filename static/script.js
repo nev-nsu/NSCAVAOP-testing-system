@@ -111,6 +111,7 @@ function sendRunTestingRequest()
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		var tests_description = JSON.parse(tests_description_field.value);
 		var op_lvl = document.getElementById('optimization_level_selector').value.match(/-O(.*)/)[1];
+		var answer_type = document.getElementById('answer_type').value;
 		var primary_request = JSON.stringify(
 		{
 			type: "run_tests",
@@ -123,7 +124,7 @@ function sendRunTestingRequest()
 				},
 				tests: [tests_description],
 				verifier: verificator_field.value,
-				response_type: "raw_data"
+				response_type: answer_type
 			}
 		} );
 

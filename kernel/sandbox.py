@@ -53,7 +53,9 @@ class TSandbox:
         return {}
 
     def compile_untrusted(self, code, options):
-        command = '\' echo "' + code + '" | g++ -x c++ - -o ' + self.dir + \
+        with open(self.dir + '/main.cpp', 'w') as f:
+            f.write(code)
+        command = '\'g++ '+ self.dir + '/main.cpp -o ' + self.dir + \
             '/executable ' + compile_options2string(options) + '\''
         full_command = 'firejail --timeout=0:0:10 --quiet --profile=' + \
             self.profile + ' bash -c ' + command

@@ -29,6 +29,7 @@ class TTestingTask:
             callback(self)
 
     def execute(self):
+        print (self.response)
         try:
             sb = TSandbox(self.number)
             res = sb.compile_untrusted(self.code, self.options)
@@ -44,10 +45,14 @@ class TTestingTask:
             else:
                 self.result = []
             for result in self.testing(sb, gen):
+                status = result['status']
                 if self.response == 'statistics':
-                    self.result[result['status']] += 1
+                    if status not in self.result:
+                        self.result[status] = 1
+                    else:
+                        self.result[status] += 1
                 elif self.response == 'raw_data' or result['status'] != 'OK':
-                    self.result.append([result])
+                    self.result.append(result)
             self.status = 'finished'
             for cb in self.callbacks: cb(self)
         except Exception as e:

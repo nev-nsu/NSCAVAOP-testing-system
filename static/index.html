@@ -15,7 +15,17 @@
 				</label>
 			</div>
 			<span><font size="1" color="#303030">Text in the "C code" field will be lost!</font></span>
-			<div class="select_container">
+            
+            <div class="select_container">
+				<label for="answer_type">Answer type</label>
+				<select id="answer_type">
+					<option selected>raw_data</option>
+					<option>failed_only</option>
+					<option>statistics</option>
+				</select>
+			</div>
+
+            <div class="select_container">
 				<label for="optimization_level_selector">Optimization level</label>
 				<select id="optimization_level_selector">
 					<option>-O</option>
@@ -70,6 +80,7 @@
 		</script>
 
 		<!-- for testing -->
+        <!--
 		<script>  //значения полей по умолчанию
 			document.getElementById('source_code').value = 'int main() {}';
 			document.getElementById('tests_description').value = '{\n    "number": 100,\n    "template":\n    {\n        "type": {"type": "value", "value": "integer"},\n        "min": {"type": "value", "value": -10},\n        "max": {"type": "value", "value": 10},\n        "name": {"type": "value", "value": "n"}\n    }\n}';
