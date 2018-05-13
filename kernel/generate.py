@@ -1,6 +1,15 @@
 import random
 import string
 
+def representation(x):
+    if isinstance(x, int):
+        return str(x)
+    if isinstance(x, str):
+        return x
+    if isinstance(x, list):
+        return ''.join([representation(i) for i in x])
+    assert False, "Bad type of object in result"
+
 
 class VariableRedefinition(Exception):
     def __init__(self, name):
@@ -58,7 +67,8 @@ class TGenerator:
 
     def __generate_instance__(self, template):
         self.names = {}
-        return self.__generate_recursive__(template)['representation']
+        res = self.__generate_recursive__(template)
+        return representation(res)
 
     def __get_attribute__(self, obj, name, optional=False):
         if name in obj:
@@ -85,20 +95,20 @@ class TGenerator:
             max = self.__get_attribute__(template, 'max')
             min = self.__get_attribute__(template, 'min')
             num = random.randint(min, max)
-            result = {'raw': num, 'representation': str(num)}
+            result = num
         elif type == 'real':
             max = self.__get_attribute__(template, 'max')
             min = self.__get_attribute__(template, 'min')
             num = random.uniform(min, max)
-            result = {'raw': num, 'representation': str(num)}
+            result = num
         elif type == 'string':
             length = self.__get_attribute__(template, 'length')
             allowed = self.__get_attribute__(template, 'allowed', True)
             forbidden = self.__get_attribute__(template, 'forbidden', True)
             if allowed:
-                s = ''.join(random.choice(allowed) for _ in range(length))
+                result = ''.join(random.choice(allowed) for _ in range(length))
             elif forbidden:
-                s = ''.join(
+                result = ''.join(
                     random.choice(
                         (string.ascii_uppercase +
                          string.digits).translate(
@@ -106,22 +116,15 @@ class TGenerator:
                              forbidden)) for _ in range(length))
             else:
                 raise MissingParameter('allowed/forbidden')
-            result = {'raw': s, 'representation': s}
         elif type == 'array':
             length = self.__get_attribute__(template, 'length')
             inner = self.__get_attribute__(template, 'element_type')
-            a = [self.__generate_recursive__(inner) for _ in range(length)]
-            repr = ''.join([i['representation'] for i in a])
-            a = [i['raw'] for i in a]
-            result = {'raw': a, 'representation': repr}
+            result = [self.__generate_recursive__(inner) for _ in range(length)]
         elif type == 'composite':
             array = self.__get_attribute__(template, 'array')
             if len(array) < 1:
                 raise TooShortArray()
-            a = [self.__generate_recursive__(x) for x in array]
-            repr = ''.join([i['representation'] for i in a])
-            a = [i['raw'] for i in a]
-            result = {'raw': a, 'representation': repr}
+            result = [self.__generate_recursive__(x) for x in array]
         elif type == 'choice':
             array = self.__get_attribute__(template, 'array')
             if len(array) < 1:
@@ -129,12 +132,11 @@ class TGenerator:
             inner = random.choice(array)
             result = self.__generate_recursive__(inner)
         elif type == 'const':
-            value = self.__get_attribute__(template, 'value')
-            result = {'raw': value, 'representation': value}
+            result = self.__get_attribute__(template, 'value')
         else:
             raise UnknownType(type)
         if name:
             if name in self.names:
                 raise VariableRedefinition(name)
-            self.names[name] = result['raw']
+            self.names[name] = result
         return result
