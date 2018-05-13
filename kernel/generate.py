@@ -15,10 +15,14 @@ class UnresolvedVariableName(Exception):
 
 
 class BadTemplate(Exception):
-    def __init__(self):
-        message = "Bad template"
+    def __init__(self, message):
+        message = "Bad template: " + message
         super().__init__(message)
 
+class TooShortArray(Exception):
+    def __init__(self):
+        message = "Bad template: too short array"
+        super().__init__(message)
 
 class UnknownType(Exception):
     def __init__(self, name):
@@ -49,8 +53,8 @@ class TGenerator:
             for group in self.tests:
                 for _ in range(group['number']):
                     yield self.__generate_instance__(group['template'])
-        except (AttributeError, KeyError):
-            raise BadTemplate()
+        except (AttributeError, KeyError) as e:
+            raise BadTemplate(str(e))
 
     def __generate_instance__(self, template):
         self.names = {}
@@ -113,7 +117,7 @@ class TGenerator:
         elif type == 'composite':
             array = self.__get_attribute__(template, 'array')
             if len(array) < 1:
-                raise BadTemplate()
+                raise TooShortArray()
             a = [self.__generate_recursive__(x) for x in array]
             repr = ''.join([i['representation'] for i in a])
             a = [i['raw'] for i in a]
@@ -121,7 +125,7 @@ class TGenerator:
         elif type == 'choice':
             array = self.__get_attribute__(template, 'array')
             if len(array) < 1:
-                raise BadTemplate()
+                raise TooShortArray()
             inner = random.choice(array)
             result = self.__generate_recursive__(inner)
         elif type == 'const':
