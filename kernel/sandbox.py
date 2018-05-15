@@ -53,10 +53,11 @@ class TSandbox:
         return {}
 
     def compile_untrusted(self, code, options):
-        command = '\' echo "' + code + '" | gcc -x c++ - -o ' + self.dir + \
+        command = '\' echo "' + code + '" | g++ -x c++ - -o ' + self.dir + \
             '/executable ' + compile_options2string(options) + '\''
         full_command = 'firejail --timeout=0:0:10 --quiet --profile=' + \
             self.profile + ' bash -c ' + command
+        print('execute:', command)
         os.system(full_command)
         self.has_executable = True
         # check result of execution

@@ -16,10 +16,17 @@ class TTestingTask:
         # generate a token
         self.number = str(uuid4())
         self.result = {}
+        self.callbacks = []
 
-    def start(self, callback):
-        self.callback = callback
+    def start(self):
         SThreadPool().add(self.execute, ())
+
+    def add_cb(self, callback):
+        status = self.status
+        if status not in ('finished', 'failed'):
+            self.callbacks.append(callback)
+        else:
+            callback(self)
 
     def execute(self):
         try:
@@ -42,11 +49,11 @@ class TTestingTask:
                 elif self.response == 'raw_data' or result['status'] != 'OK':
                     self.result.append([result])
             self.status = 'finished'
-            self.callback(self)
+            for cb in self.callbacks: cb(self)
         except Exception as e:
             self.status = 'failed'
             self.result = str(e)
-            self.callback(self)
+            for cb in self.callbacks: cb(self)
 
     def testing(self, sandbox, generator):
         for test in generator.generate():

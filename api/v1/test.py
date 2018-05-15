@@ -4,6 +4,7 @@ from kernel.testing_task import TTestingTask
 
 def send_answer(request, response):
     request.send_response(200)
+    print(response)
     data = bytes(json.dumps(response), 'utf-8')
     request.send_header('Content-Length', len(data))
     request.send_header('Connection', 'close')
@@ -27,6 +28,7 @@ class TApiCallHandler(IHandler):
 
         content_length = int(handler.headers['Content-Length'])
         body = handler.rfile.read(content_length).decode('utf-8')
+        print (body)
         try:
             request = json.loads(body)
             type = request['type']
@@ -40,6 +42,7 @@ class TApiCallHandler(IHandler):
                 self.tasks[task.number] = task
                 response = {'status': 'added', 'token': task.number}
                 send_answer(handler, response)
+                task.start()
             elif type == 'update_status':
                 num = request['token']
                 if num not in self.tasks:
@@ -48,7 +51,7 @@ class TApiCallHandler(IHandler):
                 else:
                     task = self.tasks[num]
                     callback = lambda tt: send_result(handler, tt) 
-                    task.start(callback)
+                    task.add_cb(callback)
             else:
                 handler.send_error(400, 'Bad request type')
 
