@@ -60,7 +60,7 @@
 			}
 			else
 			{
-				var token = document.cookie.match(/token=([^;]*)/)[1];
+				var token = decodeURIComponent(document.cookie.match(/token=([^;]*)/)[1]);
 				if (token)
 				{
 					alert('Last request wasn\' finished.\nSending update request.');
