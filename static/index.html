@@ -40,7 +40,7 @@
 			<div class="column left-column">
 				<div class="column-content">
 					<label for="source_code">C code</label>
-					<textarea id="source_code" spellcheck="false"></textarea>
+					<textarea id="source_code" spellcheck="false" tabindex="-1"></textarea>
 				</div>
 			</div>
 			<div class="column right-column">
@@ -62,6 +62,7 @@
 				<p id="output"></p>
 			</div>
 		</div>
+		<script src="parser.js"></script>
 		<script src="script.js"></script>
 		<script>  //проверка куки
 			if (!navigator.cookieEnabled)  //если у пользователя запрещены куки
@@ -70,7 +71,7 @@
 			}
 			else
 			{
-				var token = document.cookie.match(/token=([^;]*)/)[1];
+				var token = decodeURIComponent(document.cookie.match(/token=([^;]*)/)[1]);
 				if (token)
 				{
 					alert('Last request wasn\' finished.\nSending update request.');
@@ -83,8 +84,9 @@
         <!--
 		<script>  //значения полей по умолчанию
 			document.getElementById('source_code').value = 'int main() {}';
-			document.getElementById('tests_description').value = '{\n    "number": 100,\n    "template":\n    {\n        "type": {"type": "value", "value": "integer"},\n        "min": {"type": "value", "value": -10},\n        "max": {"type": "value", "value": 10},\n        "name": {"type": "value", "value": "n"}\n    }\n}';
-			document.getElementById('verification_script').value = 'def verify(raw_input, raw_output, template): return true';
+			document.getElementById('tests_description').value = 'number: 100\ncomposite {\n    integer {\n        min: 1;\n        max: 10;\n        name: n\n    }\n    array {\n        length: n;\n        type: integer {\n            min: -10;\n            max: 10\n        }\n    }\n}';
+			//document.getElementById('tests_description').value = 'number: 100\narray {\n    length: 10;\n    type: integer {\n        min: -10;\n        max: 10\n    }\n}';
+			document.getElementById('verification_script').value = 'def verify(raw_input, raw_output, template): print("ok")';
 		</script>
 		<!-- ----------- -->
 	</body>

@@ -4,6 +4,7 @@ var tests_description_field = document.getElementById('tests_description');
 var verificator_field = document.getElementById('verification_script');
 var file_button = document.getElementById('load_file');
 var output_field = document.getElementById('output');
+var optimization_lvl_selector = document.getElementById('optimization_level_selector');
 
 function disablePage()
 {
@@ -12,6 +13,7 @@ function disablePage()
 	tests_description_field.disabled = true;
 	verificator_field.disabled = true;
 	file_button.disabled = true;
+	optimization_lvl_selector.disabled = true;
 }
 
 function enablePage()
@@ -21,12 +23,14 @@ function enablePage()
 	tests_description_field.disabled = false;
 	verificator_field.disabled = false;
 	file_button.disabled = false;
+	optimization_lvl_selector.disabled = false;
 }
 
 function saveTokenToCookie(token)
 {
 	var date = new Date(new Date().getTime() + 3600 * 1000);
-	document.cookie = "token=" + token + "; expires=" + date.toUTCString();
+	document.cookie = "token=" + encodeURIComponent(token) + "; expires=" + date.toUTCString();
+	//alert('token:\n' + token + '\n\ncookie:\n' + document.cookie + '\n\ndecoded cookie:\n' + decodeURIComponent(document.cookie));
 }
 
 function deleteTokenFromCookie()
@@ -83,6 +87,7 @@ function primaryRequestReadystatechangeHandler()
 	if (this.status != 200)
 	{
 		output_field.innerHTML = this.status + ': ' + this.statusText;
+		send_button.innerHTML = '<font size="5">Send</font>';
 		enablePage();
 		return;
 	}
@@ -106,11 +111,10 @@ function sendRunTestingRequest()
 		send_button.innerHTML = '<font size="5">Sending...</font>';
 		disablePage();
 
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', '/api/v1/test', true);
-		xhr.setRequestHeader('Content-Type', 'application/json');
-		var tests_description = JSON.parse(tests_description_field.value);
-		var op_lvl = document.getElementById('optimization_level_selector').value.match(/-O(.*)/)[1];
+        var tests_description = tests_description_field.value.replace(/[ \n\t]/g, '');
+		tests_description = notes.exec(tests_description, 0).res;  // массив
+		alert( JSON.stringify(tests_description, '', 4) );  // отладка
+		var op_lvl = optimization_lvl_selector.value.match(/-O(.*)/)[1];
 		var answer_type = document.getElementById('answer_type').value;
 		var primary_request = JSON.stringify(
 		{
@@ -122,12 +126,15 @@ function sendRunTestingRequest()
 				{
 					optimization_level: op_lvl
 				},
-				tests: [tests_description],
+				tests: tests_description,
 				verifier: verificator_field.value,
 				response_type: answer_type
 			}
 		} );
 
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', '/api/v1/test', true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
 		xhr.onreadystatechange = primaryRequestReadystatechangeHandler;
 
 		xhr.send(primary_request);
