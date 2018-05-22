@@ -2,6 +2,8 @@ import random
 import string
 
 def representation(x):
+    if isinstance(x, float):
+        return str(x)
     if isinstance(x, int):
         return str(x)
     if isinstance(x, str):
@@ -64,6 +66,9 @@ class TGenerator:
                     yield self.__generate_instance__(group['template'])
         except (AttributeError, KeyError) as e:
             raise BadTemplate(str(e))
+        except Exception as e:
+            print(e)
+            raise e
 
     def __generate_instance__(self, template):
         self.names = {}
@@ -84,7 +89,7 @@ class TGenerator:
                 raise UnresolvedVariableName(attr['name'])
             return self.names[attr['name']]
         elif attr['type'] == 'test':
-            return self.__generate_recursive__(attr['template'])['raw']
+            return self.__generate_recursive__(attr['template'])
         else:
             raise UnknownType(attr['type'])
 
