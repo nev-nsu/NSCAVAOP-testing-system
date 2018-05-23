@@ -113,7 +113,7 @@ function sendRunTestingRequest()
 
         var tests_description = tests_description_field.value.replace(/[ \n\t]/g, '');
 		tests_description = notes.exec(tests_description, 0).res;  // массив
-		alert( JSON.stringify(tests_description, '', 4) );  // отладка
+		//alert( JSON.stringify(tests_description, '', 4) );  // отладка
 		var op_lvl = optimization_lvl_selector.value.match(/-O(.*)/)[1];
 		var answer_type = document.getElementById('answer_type').value;
 		var primary_request = JSON.stringify(

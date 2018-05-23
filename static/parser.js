@@ -327,19 +327,13 @@ function field(type)
 					case 'type':
 						res[0] = 'element_type';
 						tmp = test.exec(str, end);
-						res[1].type = 'test';
-						res[1].template = tmp.res;
+						res[1].type = 'value';
+						res[1].value = tmp.res;
 						end = tmp.end;
 						break;
 					default:
 						// TODO
 				}
-				break;
-			case 'composite':
-				// TODO
-				break;
-			case 'choice':
-				// TODO
 				break;
 			case 'const':
 				switch(res[0])
@@ -456,80 +450,3 @@ var note = new Parser(function(str, pos)
 
 // использовать надо только это
 var notes = repetition(note);
-
-/*{
-	"number": 20,
-	"template": {
-		"type": {
-			"type": "value",
-			"value": "composite"
-		},
-		"array": {
-			"type": "value",
-			"value": [
-				{
-					"type": {
-						"type": "value",
-						"value": "integer"
-					},
-					"min": {
-						"type": "value",
-						"value": 0
-					},
-					"max": {
-						"type": "value",
-						"value": 100
-					}
-				},
-				{
-					"type": {
-						"type": "value",
-						"value": "const"
-					},
-					"value": {
-						"type": "value",
-						"value": " "
-					}
-				},
-				{
-					"type": {
-						"type": "value",
-						"value": "integer"
-					},
-					"min": {
-						"type": "value",
-						"value": 0
-					},
-					"max": {
-						"type": "value",
-						"value": 100
-					}
-				},
-				{
-					"type": {
-						"type": "value",
-						"value": "const"
-					},
-					"value": {
-						"type": "value",
-						"value": " "
-					}
-				},
-				{
-					"type": {
-						"type": "value",
-						"value": "integer"
-					},
-					"min": {
-						"type": "value",
-						"value": 0
-					},
-					"max": {
-						"type": "value",
-						"value": 100
-					}
-				}
-			]
-		}
-	}
-}*/
