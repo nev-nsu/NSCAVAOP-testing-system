@@ -54,7 +54,34 @@ function updateRequestReadystatechangeHandler()
 	else  //здесь происходит вывод результатов
 	{
 		//var status = this.responseText.match(/"status": "([^"]*)"/)[1];
-		output_field.innerHTML = this.responseText;
+		var response = JSON.parse(this.responseText);
+		if (response.status === 'failed')
+		{
+			//error = this.responseText.match(/"data": "([^"]*)"/)[1];
+			output_field.innerHTML = '<p>Failed</p><p>Error: ' + response.data + '</p>';
+		}
+		else
+		{
+			if (Array.isArray(response.data))
+			{
+				// TODO
+			}
+			else
+			{
+				var str = '<p color="green">' + response.data.ok + ' ';
+				if (response.data.ok === 1)
+					str += 'test';
+				else
+					str += 'tests';
+				str += ' passed</p><p color="red">' + response.data.wa + ' ';
+				if (response.data.wa === 1)
+					str += 'test';
+				else
+					str += 'tests';
+				str += ' failed</p>';
+				output_field.innerHTML = str;
+			}
+		}
 		send_button.innerHTML = '<font size="5">Send</font>';
 		deleteTokenFromCookie();
 		enablePage();
@@ -94,13 +121,42 @@ function primaryRequestReadystatechangeHandler()
 	else
 	{
 		send_button.innerHTML = '<font size="5">Running...</font>';
-		output_field.innerHTML = this.responseText;  //отладка
+		//output_field.innerHTML = this.responseText;  //отладка
 
-		var token = this.responseText.match(/"token": "([^"]*)"/)[1];
+		//var token = this.responseText.match(/"token": "([^"]*)"/)[1];
+		var token = JSON.parse(this.responseText).token;
 		saveTokenToCookie(token);
 
 		sendUpdateRequest(token);
 	}
+}
+
+function deleteSpacesExceptQuotes(str)
+{
+	var n = str.length;
+	var substrings = [];
+	var c, li = 0;
+	for (var i = 0; i < n; i++)
+	{
+		res = str.slice(li).match(/["']/);
+		if (!res)
+		{
+			substrings.push(str.slice(li).replace(/[ \n\t]/g, ''));
+			break;
+		}
+		c = res[0];
+		substrings.push(str.slice(li, li + res.index + 1).replace(/[ \n\t]/g, ''));
+		li += res.index + 1;
+
+		i++;
+
+		res = str.slice(li).match(new RegExp(c));
+		if (!res)
+			throw new Error('Incorrect number of quotation marks.');
+		substrings.push(str.slice(li, li + res.index + 1));
+		li += res.index + 1;
+	}
+	return substrings.join('');
 }
 
 function sendRunTestingRequest()
@@ -111,7 +167,8 @@ function sendRunTestingRequest()
 		send_button.innerHTML = '<font size="5">Sending...</font>';
 		disablePage();
 
-        var tests_description = tests_description_field.value.replace(/[ \n\t]/g, '');
+		//var tests_description = tests_description_field.value.replace(/[ \n\t]/g, '');
+		var tests_description = deleteSpacesExceptQuotes(tests_description_field.value);
 		tests_description = notes.exec(tests_description, 0).res;  // массив
 		//alert( JSON.stringify(tests_description, '', 4) );  // отладка
 		var op_lvl = optimization_lvl_selector.value.match(/-O(.*)/)[1];
@@ -150,6 +207,7 @@ function sendRunTestingRequest()
 // import code from file
 function loadFile()
 {
+	if (code_field.value !== '') alert('Text in the "Source code" field will be lost!');
 	file_button.addEventListener("change", function(event)
 	{
 		var reader = new FileReader();

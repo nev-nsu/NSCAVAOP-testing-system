@@ -54,6 +54,7 @@ function regexp (rgx)
 				res: m[0],
 				end: pos + m[0].length
 			};
+		else return;
 	});
 }
 /*------------------------------------------*/
@@ -95,7 +96,7 @@ function sequence ()
 	var args = arguments;
 	return new Parser(function(str, pos)
 	{
-		var result, res = [], end = pos, n = args.length;
+		var res = [], end = pos, n = args.length;
 		for (var i = 0; i < n; i++)
 		{
 			r = args[i].exec(str, end);
@@ -151,12 +152,15 @@ var int_number = sequence(optional(text('-')), repetition(digit).then(res => res
 var point = any(text('.'), text(',')).then(r => { if (r === ',') return '.'; else return r; });  // разделитель в вещественном числе
 var real_number = sequence( int_number, optional( sequence(point, int_number).then(r=>r.join('')) ) ).then(r => parseFloat(r.join('')));
 
-var q_mark = any(text('"'), text("'"));
-var quoted = sequence( q_mark, id, q_mark ).then(r => r[1]);
+var symbol = regexp(/[^'"]/)
+
+//var q_mark = any(text('"'), text("'"));
+//var quoted = sequence( q_mark, id, q_mark ).then(r => r[1]);
+var quoted = any( sequence( text('"'), optional(repetition(symbol)), text('"') ), sequence( text("'"), optional(repetition(symbol)), text("'") ) ).then(r => r[1].join(''));
 /*------------------------------------------*/
 
 /*------------------main--------------------*/
-var id = regexp(/[a-z][^;,}"']*/i);
+var id = sequence( regexp(/[a-z]/i), optional( repetition(regexp(/[a-z0-9_-]/i)).then(r => r.join('')) ) ).then(r => r.join(''));
 
 var field_name = regexp(/[a-z_]+/);
 
@@ -364,7 +368,6 @@ function field(type)
 				// TODO
 				break;
 		}
-			
 		return {
 			res: res,
 			end: end
