@@ -14,9 +14,8 @@
 					<span><font size="1">Import C code from file</font></span>
 				</label>
 			</div>
-			<span><font size="1" color="#303030">Text in the "C code" field will be lost!</font></span>
-            
-            <div class="select_container">
+			<span id="help_ref"><a href="help.html">Help</a></span>
+			<div class="select_container">
 				<label for="answer_type">Answer type</label>
 				<select id="answer_type">
 					<option selected>raw_data</option>
@@ -24,8 +23,7 @@
 					<option>statistics</option>
 				</select>
 			</div>
-
-            <div class="select_container">
+			<div class="select_container">
 				<label for="optimization_level_selector">Optimization level</label>
 				<select id="optimization_level_selector">
 					<option>-O</option>
@@ -39,20 +37,20 @@
 		<div class="middle_area">
 			<div class="column left-column">
 				<div class="column-content">
-					<label for="source_code">C code</label>
-					<textarea id="source_code" spellcheck="false" tabindex="-1"></textarea>
+					<label for="source_code">Source code (C/C++)</label>
+					<textarea id="source_code" spellcheck="false" ></textarea>
 				</div>
 			</div>
 			<div class="column right-column">
 				<div class="column-content">
-					<label for="tests_description">Tests description</label>
+					<label for="tests_description">Tests description (JIDDL)</label>
 					<textarea id="tests_description" spellcheck="false"></textarea>
 				</div>
 			</div>
 		</div>
 		<div class="footer">
 			<div>
-				<label for="verification_script">Verification script</label>
+				<label for="verification_script">Verification script (Python)</label>
 				<textarea id="verification_script" spellcheck="false"></textarea>
 			</div>
 			<div class="button" id="submit_container">
@@ -81,7 +79,7 @@
 		</script>
 
 		<!-- for testing -->
-        <!--
+                <!--
 		<script>  //значения полей по умолчанию
 			document.getElementById('source_code').value = 'int main() {}';
 			document.getElementById('tests_description').value = 'number: 100\ncomposite {\n    integer {\n        min: 1;\n        max: 10;\n        name: n\n    }\n    array {\n        length: n;\n        type: integer {\n            min: -10;\n            max: 10\n        }\n    }\n}';
