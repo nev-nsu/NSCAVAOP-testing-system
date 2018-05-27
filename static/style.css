@@ -72,7 +72,25 @@
 
 .select_container {
 	float: right;
+	margin-right: 10px;
 }
+
+#help_ref {
+	float: right;
+	margin-right: 10px;
+	border: 2px;
+	height: 20px;
+}
+
+/*#optimization_level_selector {
+	background: #EEEEEE;
+	background: -moz-linear-gradient(#DFDFDF, #EEEEEE, ##DFDFDF);
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#DFDFDF), to(#DFDFDF), color-stop(0.5, #EEEEEE));
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#DFDFDF', endColorstr='#EEEEEE');
+	border: 1px solid #CCCCCC;
+	padding: 0 5px;
+	border-radius: 2px;
+}*/
 
 .middle_area {
 	clear: both;
@@ -128,4 +146,5 @@ textarea:focus {
 	background: #EEEEEE;
 	border-radius: 10px;
 	min-height: 60px;
+	padding: 1px 1px;
 }
