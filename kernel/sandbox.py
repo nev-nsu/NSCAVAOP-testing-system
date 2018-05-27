@@ -62,16 +62,15 @@ class TSandbox:
         print('execute:', command)
         os.system(full_command)
         self.has_executable = True
+        self.has_output = False
         # check result of execution
         return {}
 
     def get_execution_result(self):
-        assert self.has_output
-        if not hasattr(self, 'output'):
-            try:
-                with open(self.dir + '/output', 'r') as f:
-                    res = f.read()
-                    self.output = res
-            except FileNotFoundError:
-                self.output = ''
+        try:
+            with open(self.dir + '/output', 'r') as f:
+                res = f.read()
+                self.output = res
+        except FileNotFoundError:
+            self.output = ''
         return self.output
