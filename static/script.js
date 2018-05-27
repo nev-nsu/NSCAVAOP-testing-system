@@ -62,9 +62,24 @@ function updateRequestReadystatechangeHandler()
 		}
 		else
 		{
-			if (Array.isArray(response.data))
-				output_field.innerHTML = 'I have not done raw_data output :(';
-				// TODO
+			if (Array.isArray(response.result))
+			{					
+				var newWin = window.open();
+				var n = response.result.length;
+				var str = '';
+				for (var i = 0; i < n; i++)
+				{
+					if (response.result[i].status === 'ok\n')
+						str += '<p><font color="green">status: ok</font></p>';
+					else
+						str += '<p><font color="red">status: ' + response.result[i].status + '</font></p>';
+
+					str += '<p>input: ' + response.result[i].input + '</p>';
+					str += '<p>output: ' + response.result[i].output + '</p>';
+					str += '<p>---------------------------------</p>';
+				}
+				newWin.document.write(str);
+			}
 			else
 			{
 				var str = '';
