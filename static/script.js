@@ -46,16 +46,11 @@ function updateRequestReadystatechangeHandler()
 
 	if (this.status != 200)
 	{
-		output_field.innerHTML = this.status + ': ' + this.statusText;
-		send_button.innerHTML = '<font size="5">Send</font>';
-		enablePage();
 		return;
 	}
 	else  //здесь происходит вывод результатов
 	{
-		//var status = this.responseText.match(/"status": "([^"]*)"/)[1];
 		output_field.innerHTML = this.responseText;
-		send_button.innerHTML = '<font size="5">Send</font>';
 		deleteTokenFromCookie();
 		enablePage();
 		return;
@@ -86,16 +81,10 @@ function primaryRequestReadystatechangeHandler()
 
 	if (this.status != 200)
 	{
-		output_field.innerHTML = this.status + ': ' + this.statusText;
-		send_button.innerHTML = '<font size="5">Send</font>';
-		enablePage();
 		return;
 	}
 	else
 	{
-		send_button.innerHTML = '<font size="5">Running...</font>';
-		output_field.innerHTML = this.responseText;  //отладка
-
 		var token = this.responseText.match(/"token": "([^"]*)"/)[1];
 		saveTokenToCookie(token);
 
@@ -107,14 +96,9 @@ function sendRunTestingRequest()
 {
 	try
 	{
-		output_field.innerHTML = '';
-		send_button.innerHTML = '<font size="5">Sending...</font>';
-		disablePage();
-
         var tests_description = tests_description_field.value.replace(/[ \n\t]/g, '');
-		tests_description = notes.exec(tests_description, 0).res;  // массив
-		//alert( JSON.stringify(tests_description, '', 4) );  // отладка
-		var op_lvl = optimization_lvl_selector.value.match(/-O(.*)/)[1];
+		tests_description = notes.exec(tests_description, 0).res;
+		var op_lvl = optimization_lvl_selector.value;
 		var answer_type = document.getElementById('answer_type').value;
 		var primary_request = JSON.stringify(
 		{
@@ -142,8 +126,6 @@ function sendRunTestingRequest()
 	catch (err)
 	{
 		alert('Error.\n\n' + err.name + ':' + err.message + '\n\n' + err.stack);
-		send_button.innerHTML = '<font size="5">Send</font>';
-		enablePage();
 	}
 }
 
@@ -165,6 +147,6 @@ function loadFile()
 			alert('Can\'t read the file. Error code: ' + event.target.error.code);
 		};
 
-		reader.readAsText(file_button.files[0]);		
+		reader.readAsText(file_button.files[0]);
 	}, false);
 }

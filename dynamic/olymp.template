@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link href="/style.css" rel="stylesheet">
+	</head>
+	<body>
+<div class="header">
+<p>
+<h2 id="olympiad_name">Олимпиада</h2>
+</p>
+</div>
+        <div class="row">
+          <div class="column">
+<h4> Ваши попытки </h4>
+<div class="table">
+		<div class="table-header">
+        <div class="header__item"><a id="wins" class="filter__link filter__link--number" href="#">Номер попытки</a></div>
+			<div class="header__item"><a id="name" class="filter__link" href="#">Задача</a></div>
+			<div class="header__item"><a id="draws" class="filter__link filter__link--number" href="#">Результат</a></div>
+		</div>
+		<div class="table-content" id = "attempts_table">
+		</div>
+	</div>
+				</div>
+			 <div class="column">
+             <h4> Задачи </h4>
+             <div>
+               <ol id = "tasks_list">
+
+             </div>
+				</div>
+		 <div class="column">
+         <h4> Рейтинг участников </h4>
+         <div class="table">
+         		<div class="table-header">
+                <div class="header__item"><a id="draws" class="filter__link filter__link--number" href="#">Место</a></div>
+                 <div class="header__item"><a id="wins" class="filter__link filter__link--number" href="#">Логин</a></div>
+         			<div class="header__item"><a id="name" class="filter__link" href="#">Результат</a></div>
+         		</div>
+         		<div class="table-content" id = "results_table">
+
+
+         		</div>
+         	</div>
+			</div>
+        </div>
+
+        <div>
+            <p id="output"></p>
+        </div>
+
+		<script src="/script.js"></script>
+        <script src="/security.js"></script>
+		<script>
+            var oid = {{p}};
+
+            function checkOrRegister(){
+
+            };
+
+            function loadPage(){
+                var sid = getCookie('sid');
+                var request = JSON.stringify(
+                {
+                    type: "olymp_info",
+                    sid:sid,
+                    oid:oid
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/getinfo', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function() {
+                    if (this.readyState != 4)
+                        return;
+
+                    if (this.status != 200)
+                        return;
+
+
+                    var res = JSON.parse(this.responseText);
+                    if (res.status === 'success') {
+                        var x = document.getElementById("attempts_table");
+                        for (i = 0; i < res.data.attempts.length; i++) {
+                            var e = res.data.attempts[i];
+                            var text = '<div class="table-row">\
+                				<div class="table-data">'+e[0]+'</div>\
+                				<div class="table-data">'+e[1]+'</div>\
+                				<div class="table-data">'+e[3]+'</div>\
+                			</div>';
+                            x.innerHTML += text;
+                        }
+
+                        var y = document.getElementById("tasks_list");
+                        for (i = 0; i < res.data.tasks.length; i++) {
+                            var e = res.data.tasks[i];
+                            var li = "<li><span>" + e[0] + ".</span><p><b>" + e[2] + ": </b>" + e[3] + "</p></li>";
+                            y.innerHTML+=li;
+                        }
+
+                        var z = document.getElementById("results_table");
+                        for (i = 0; i < res.data.results.length; i++) {
+                            var e = res.data.results[i];
+                            var text = '<div class="table-row">\
+                				<div class="table-data">'+(i+1)+'</div>\
+                				<div class="table-data">'+e[0]+'</div>\
+                				<div class="table-data">'+e[1]+'</div>\
+                			</div>';
+                            z.innerHTML += text;
+                        }
+                    }
+                }
+                xhr.send(request);
+            };
+
+            securityCheck();
+            //checkOrRegister();
+            loadPage();
+
+		</script>
+	</body>
+</html>

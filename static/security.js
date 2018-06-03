@@ -1,4 +1,4 @@
-function saveSidToCookie(token)
+function saveSidToCookie(sid)
 {
 	document.cookie = "sid=" + encodeURIComponent(sid)
 }
@@ -17,40 +17,39 @@ function getCookie(name) {
 }
 
 function securityCheck() {
-    sid = getCookie('sid');
+    var sid = getCookie('sid');
     if (!sid) {
-        window.location="signin.html";
+        document.location.href = "/signin.html";
         return;
     }
-    
     var request = JSON.stringify(
         {
             type: "check_sid",
             sid:sid
         } );
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/v1/getinfo', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
+    var xhrsec = new XMLHttpRequest();
+    xhrsec.open('POST', '/api/v1/getinfo', true);
+    xhrsec.setRequestHeader('Content-Type', 'application/json');
 
-    xhr.onreadystatechange = function() {
+    xhrsec.onreadystatechange = function() {
     	if (this.readyState != 4)
 		return;
 
         if (this.status != 200)
         {
-            window.location="signin.html";
+            document.location.href = "/signin.html";
             return;
         }
-        else 
+        else
         {
             var obj = JSON.parse(this.responseText);
-            if (obj.status !== 'success' || obj.result !== true)
-                window.location="signin.html";
+            if (obj.status !== 'success' || obj.result !== true){
+                document.location.href = "/signin.html";
+            }
             return;
         }
     };
 
-    xhr.send(update_request);
+    xhrsec.send(request);
 }
-

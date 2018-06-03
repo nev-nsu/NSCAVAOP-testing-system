@@ -2,92 +2,17 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<link href="style.css" rel="stylesheet">
+        <link href="inputs.css" rel="stylesheet">
 	</head>
 	<body>
-		<div class="header">
-			<div class="load_file">
-				<!-- жалко удалять: я долго пытался сделать эту кнопку красивой -->
-				<!-- <button id="load_file"><font size="2">Import C code from file</font></button> -->
-				<label>
-					<input type="file" id="load_file" accept="text/x-c" onclick="loadFile()">
-					<span><font size="1">Import C code from file</font></span>
-				</label>
-			</div>
-			<span><font size="1" color="#303030">Text in the "C code" field will be lost!</font></span>
-            
-            <div class="select_container">
-				<label for="answer_type">Answer type</label>
-				<select id="answer_type">
-					<option selected>raw_data</option>
-					<option>failed_only</option>
-					<option>statistics</option>
-				</select>
-			</div>
-
-            <div class="select_container">
-				<label for="optimization_level_selector">Optimization level</label>
-				<select id="optimization_level_selector">
-					<option>-O</option>
-					<option>-O0</option>
-					<option>-O1</option>
-					<option>-O2</option>
-					<option selected>-O3</option>
-				</select>
-			</div>
-		</div>
-		<div class="middle_area">
-			<div class="column left-column">
-				<div class="column-content">
-					<label for="source_code">C code</label>
-					<textarea id="source_code" spellcheck="false" tabindex="-1"></textarea>
-				</div>
-			</div>
-			<div class="column right-column">
-				<div class="column-content">
-					<label for="tests_description">Tests description</label>
-					<textarea id="tests_description" spellcheck="false"></textarea>
-				</div>
-			</div>
-		</div>
-		<div class="footer">
-			<div>
-				<label for="verification_script">Verification script</label>
-				<textarea id="verification_script" spellcheck="false"></textarea>
-			</div>
-			<div class="button" id="submit_container">
-				<button id="submit" onclick="sendRunTestingRequest()"><font size="5">Send</font></button>
-			</div>
-			<div>
-				<p id="output"></p>
-			</div>
-		</div>
-		<script src="parser.js"></script>
-		<script src="script.js"></script>
-		<script>  //проверка куки
-			if (!navigator.cookieEnabled)  //если у пользователя запрещены куки
-			{
-				alert('Cookies are disabled. Without cookies we can\'t remember unfinished requests if the session is suddenly stopped.');
-			}
-			else
-			{
-				var token = decodeURIComponent(document.cookie.match(/token=([^;]*)/)[1]);
-				if (token)
-				{
-					alert('Last request wasn\' finished.\nSending update request.');
-					sendUpdateRequest(token);
-				}
-			}
+        <div class="form">
+        <button onclick="location.href='projects.html';" ><font size="5">Выбор проекта</font></button>
+        <button onclick="location.href='olymps.html';" ><font size="5">Выбор олимпиады</font></button>
+        <script src="security.js"></script>
+        <script>
+            securityCheck();
 		</script>
+    </div>
 
-		<!-- for testing -->
-        <!--
-		<script>  //значения полей по умолчанию
-			document.getElementById('source_code').value = 'int main() {}';
-			document.getElementById('tests_description').value = 'number: 100\ncomposite {\n    integer {\n        min: 1;\n        max: 10;\n        name: n\n    }\n    array {\n        length: n;\n        type: integer {\n            min: -10;\n            max: 10\n        }\n    }\n}';
-			//document.getElementById('tests_description').value = 'number: 100\narray {\n    length: 10;\n    type: integer {\n        min: -10;\n        max: 10\n    }\n}';
-			document.getElementById('verification_script').value = 'def verify(raw_input, raw_output, template): print("ok")';
-		</script>
-		<!-- ----------- -->
 	</body>
 </html>

@@ -1,6 +1,8 @@
 import json
 from api.handler import IHandler
 from kernel.testing_task import TTestingTask
+from db.query import *
+from db.connection import *
 
 def send_answer(request, response):
     request.send_response(200)
@@ -12,14 +14,9 @@ def send_answer(request, response):
     request.wfile.write(data)
     request.wfile.flush()
 
-def send_result(request, task):
-    status = task.status
-    response = {'status': status, 'result': task.result}
-    send_answer(request, response)
+response_map = {'raw_data':0, 'statistics':1, 'failed_only':2}
 
 class TApiCallHandler(IHandler):
-    tasks = {}
-
     def handle(self, handler):
         content_type = handler.headers['Content-Type']
         if content_type.lower() != 'application/json':
@@ -32,26 +29,15 @@ class TApiCallHandler(IHandler):
         try:
             request = json.loads(body)
             type = request['type']
-            if type == 'run_tests':
-                task = TTestingTask(
-                    request['data']['code'],
-                    request['data']['options'],
-                    request['data']['tests'],
-                    request['data']['verifier'],
-                    request['data']['response_type'])
-                self.tasks[task.number] = task
-                response = {'status': 'added', 'token': task.number}
-                send_answer(handler, response)
-                task.start()
-            elif type == 'update_status':
-                num = request['token']
-                if num not in self.tasks:
-                    response = {'status': 'not_found'}
-                    send_answer(handler, response)
+            if type == 'save_project':
+                result = save_project(request['sid'], request['pid'],
+                    request['code'], request['options'], request['tests'],
+                    request['verifier'], response_map[request['response_type']])
+                if result[1] == 1:
+                    response = {'status': 'success', 'result': result}
                 else:
-                    task = self.tasks[num]
-                    callback = lambda tt: send_result(handler, tt)
-                    task.add_cb(callback)
+                    response = {'status': 'failed'}
+                send_answer(handler, response)
             else:
                 handler.send_error(400, 'Bad request type')
 

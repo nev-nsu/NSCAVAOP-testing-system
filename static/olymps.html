@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link href="style.css" rel="stylesheet">
+	</head>
+	<body>
+        <div>
+            <input type="text" id="olymp_name" value="">
+            <input id="datetime_start" type="datetime" placeholder="Начало">
+            <input id="datetime_end" type="datetime" placeholder="Конец">
+            <button type="button" class="greenButton" onclick="createOlympButton()"><font size="5">Создать новую олимпиаду</font></button>
+        </div>
+        <div>
+              <h2>Ваши олимпиады (автор)</h2>
+              <ul id="list">
+              </ul>
+        </div>
+        <div>
+              <h2>Ваши олимпиады (участник)</h2>
+              <ul id="list2">
+              </ul>
+        </div>
+        <div>
+              <h2>Вы можете принять участие</h2>
+              <ul id="list3">
+              </ul>
+        </div>
+        <script src="security.js"></script>
+        <script>
+            var sid = getCookie('sid');
+
+            function loadOlymps() {
+                var output = document.getElementById('list');
+                var request = JSON.stringify(
+                    {
+                        type: "get_olymps_author",
+                        sid:sid
+                    } );
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/getinfo', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function() {
+                	if (this.readyState != 4)
+            		return;
+                    if (this.status === 200)
+                    {
+                        var obj = JSON.parse(this.responseText);
+                        if (obj.status === 'success'){
+                            for (i = 0; i < obj.data.length; i++) {
+                                output.innerHTML+='<li><a href="dynamic/olymp/'
+                                    + obj.data[i][0] + '">' + obj.data[i][1] + '</a></li>';
+                            }
+                        }
+                    }
+                };
+                xhr.send(request);
+            };
+
+            function loadOlymps2(){
+                var output2 = document.getElementById('list2');
+                var request2 = JSON.stringify(
+                    {
+                        type: "get_olymps_part",
+                        sid:sid
+                    } );
+                var xhr2 = new XMLHttpRequest();
+                xhr2.open('POST', '/api/v1/getinfo', true);
+                xhr2.setRequestHeader('Content-Type', 'application/json');
+                xhr2.onreadystatechange = function() {
+                	if (this.readyState != 4)
+            		return;
+
+                    if (this.status === 200)
+                    {
+                        var obj = JSON.parse(this.responseText);
+                        if (obj.status === 'success'){
+                            for (i = 0; i < obj.data.length; i++) {
+                                output2.innerHTML+='<li><a href="dynamic/olymp/'
+                                    + obj.data[i][0] + '">' + obj.data[i][1] + '</a></li>';
+                            }
+                        }
+                    }
+                };
+                xhr2.send(request2);
+            };
+
+            function loadOlymps3(){
+                var output3 = document.getElementById('list3');
+                var request3 = JSON.stringify(
+                    {
+                        type: "get_olymps_open",
+                        sid:sid
+                    } );
+
+                var xhr3 = new XMLHttpRequest();
+                xhr3.open('POST', '/api/v1/getinfo', true);
+                xhr3.setRequestHeader('Content-Type', 'application/json');
+
+                xhr3.onreadystatechange = function() {
+                	if (this.readyState != 4)
+            		return;
+
+                    if (this.status === 200)
+                    {
+                        var obj = JSON.parse(this.responseText);
+                        if (obj.status === 'success'){
+                            for (i = 0; i < obj.data.length; i++) {
+                                output3.innerHTML+='<li><a href="dynamic/olymp/'
+                                    + obj.data[i][0] + '">' + obj.data[i][1] + '</a></li>';
+                            }
+                        }
+                    }
+                };
+
+                xhr3.send(request3);
+            };
+
+            function sendCreateOlympRequest(name, start, end){
+                var sid = getCookie('sid');
+                var request = JSON.stringify(
+                {
+                    type: "create_olymp",
+                    sid:sid,
+                    name:name,
+                    start:start,
+                    end:end
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/create_olymp', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                xhr.onreadystatechange = function(){
+                    if (this.readyState != 4)
+                        return;
+
+                    if (this.status != 200)
+                        return;
+
+                    var response = JSON.parse(this.responseText);
+                    if (response.status === 'success')
+                        location.reload();
+                }
+
+                xhr.send(request);
+            };
+
+            function createOlympButton() {
+                var x = document.getElementById("olymp_name").value;
+                var y = document.getElementById("datetime_start").value;
+                var z = document.getElementById("datetime_end").value;
+                sendCreateOlympRequest(x, y, z);
+            };
+
+            securityCheck();
+            loadOlymps();
+            loadOlymps2();
+            loadOlymps3();
+
+		</script>
+	</body>
+</html>

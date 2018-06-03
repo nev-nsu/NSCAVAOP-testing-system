@@ -3,6 +3,7 @@
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
+from jinja2 import Template
 import metas
 from config import SConfig
 from api.api_proxy import SApiProxy
@@ -13,6 +14,7 @@ class TRequestHandler(BaseHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
     def do_GET(self):
+        self.path = self.path.strip('?')
         if self.path == '/':
             self.path += SConfig().DEFAULT_PAGE
         try:
@@ -35,26 +37,43 @@ class TRequestHandler(BaseHTTPRequestHandler):
             if type_supported:
                 with open(SConfig().STATIC_PATH + os.sep + self.path, 'rb') as file:
                     data = file.read()
-                    self.send_response(200)
-                    self.send_header('Content-type', mime_type)
-                    self.send_header('Content-Length', len(data))
-                    self.send_header('Connection', 'close')
-                    self.end_headers()
-                    self.wfile.write(data)
+            elif self.path.startswith('/dynamic'):
+                params = self.path.split('/')
+                path = SConfig().DYNAMIC_PATH + os.sep + params[2] + '.template'
+                print(path)
+                with open(path, 'r') as file:
+                    template_text = file.read()
+                    template = Template(template_text)
+                    data = template.render({'p':params[3]}).encode('utf-8')
             else:
                 self.send_error(415, 'Unsupported Media Type')
+                return
+
+            self.send_response(200)
+            self.send_header('Content-Type', mime_type)
+            self.send_header('Content-Length', len(data))
+            self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Connection', 'close')
+            self.end_headers()
+            self.wfile.write(data)
 
         except IOError:
             self.send_error(404, 'File Not Found: ' + self.path)
+        except BrokenPipeError:
+            print(str(e))
         except Exception as e:
             self.send_error(500, 'Internal Server Error')
             print(str(e))
 
     def do_POST(self):
-        if self.path.startswith('/api'):
-            SApiProxy().handle(self.path, self)
-        else:
-            self.send_error(404, 'File Not Found: ' + self.path)
+        try:
+            print(str(repr))
+            if self.path.startswith('/api'):
+                SApiProxy().handle(self.path, self)
+            else:
+                self.send_error(404, 'File Not Found: ' + self.path)
+        except BrokenPipeError as e:
+            print(str(e))
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""

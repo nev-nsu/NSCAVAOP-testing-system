@@ -1,0 +1,322 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link href="/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="header">
+<div class="logicblock">
+            <button class="greenButton" onclick="saveProject()"><font size="5">Сохранить</font></button>
+
+
+</div>
+<div class="logicblock">
+
+                <button class="greenButton" onclick="sendRunTestingRequest()"><font size="5">Запустить тестирование</font></button>
+                <label for="answer_type">Answer type</label>
+                <select id="answer_type">
+                    <option value='raw_data' selected>raw_data</option>
+                    <option value='failed_only'>failed_only</option>
+                    <option value='statistics'>statistics</option>
+                </select>
+                <label for="optimization_level_selector">Optimization level</label>
+                <select id="optimization_level_selector">
+                    <option value='-O0'>-O0</option>
+                    <option value='-O1'>-O1</option>
+                    <option value='-O2'>-O2</option>
+                    <option value = '-O3' selected>-O3</option>
+                </select>
+
+</div>
+<div class="logicblock">
+
+                <button class="greenButton" onclick="publichTask()"><font size="5">Опубликовать задачу</font></button>
+                <input type="text" id="publish_task_name" placeholder="Имя задачи">
+
+                <select id="publish_olymps">
+                <option value="" disabled selected>Олимпиада</option>
+
+                </select>
+                <a id="for_publish_result"></a>
+                <textarea onkeyup="auto_grow(this)" id="task_description" spellcheck="false" placeholder="Описание задачи"></textarea>
+
+</div>
+<div class="logicblock">
+
+                <button class="greenButton" onclick="sendSolution()"><font size="5">Отправить решение</font></button>
+                <select id="send_olymps" onchange="loadTasksToSend()">
+                <option value="" disabled selected>Олимпиада</option>
+                </select>
+                <select id="send_tasks">
+                <option value="" disabled selected>Задача</option>
+                </select>
+</div>
+		</div>
+
+        <div class="row">
+          <div class="column">
+          <label for="source_code">C code</label>
+          <textarea onkeyup="auto_grow(this)" id="source_code" spellcheck="false" tabindex="-1"></textarea>
+
+				</div>
+			 <div class="column">
+					<label for="tests_description">Tests description</label>
+					<textarea onkeyup="auto_grow(this)" id="tests_description" spellcheck="false"></textarea>
+				</div>
+		 <div class="column">
+				<label for="verification_script">Verification script</label>
+				<textarea onkeyup="auto_grow(this)" id="verification_script" spellcheck="false"></textarea>
+			</div>
+        </div>
+
+        <div>
+            <p id="output"></p>
+        </div>
+
+		<script src="/parser.js"></script>
+		<script src="/script.js"></script>
+        <script src="/security.js"></script>
+		<script>
+            securityCheck();
+            var pid = {{p}};
+            loadPage();
+
+            function auto_grow(element) {
+                element.style.height = "5px";
+                element.style.height = (element.scrollHeight)+"px";
+            }
+
+            function loadPage(){
+                var response_map = ['raw_data', 'statistics', 'failed_only']
+                var sid = getCookie('sid');
+                var request = JSON.stringify(
+                {
+                    type: "project_info",
+                    sid:sid,
+                    pid:pid
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/getinfo', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function() {
+                    if (this.readyState != 4)
+                        return;
+
+                    if (this.status != 200)
+                        return;
+
+                    var res = JSON.parse(this.responseText);
+                    if (res.status === 'success') {
+                        var project = res.data[0];
+                        document.getElementById("source_code").value = project[3];
+                        document.getElementById("tests_description").value = project[4];
+                        document.getElementById("verification_script").value = project[5];
+                        document.getElementById("answer_type").value = response_map[project[7]];
+                        document.getElementById("optimization_level_selector").value = project[6];
+                    }
+                }
+                xhr.send(request);
+
+                var request = JSON.stringify(
+                {
+                    type: "get_olymps_author",
+                    sid:sid
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/getinfo', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function() {
+                    if (this.readyState != 4)
+                        return;
+
+                    if (this.status != 200)
+                        return;
+
+                    var res = JSON.parse(this.responseText);
+                    if (res.status === 'success') {
+                        var x = document.getElementById("publish_olymps");
+                        for (i = 0; i < res.data.length; i++) {
+                            var option = document.createElement("option");
+                            option.text = res.data[i][1];
+                            option.value = res.data[i][0];
+                            x.add(option);
+                        }
+                    }
+                }
+                xhr.send(request);
+
+                var request = JSON.stringify(
+                {
+                    type: "get_olymps_part",
+                    sid:sid
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/getinfo', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function() {
+                    if (this.readyState != 4)
+                        return;
+
+                    if (this.status != 200)
+                        return;
+
+                    var res = JSON.parse(this.responseText);
+                    if (res.status === 'success') {
+                        var x = document.getElementById("send_olymps");
+                        for (i = 0; i < res.data.length; i++) {
+                            var option = document.createElement("option");
+                            option.text = res.data[i][1];
+                            option.value = res.data[i][0];
+                            x.add(option);
+                        }
+                    }
+                }
+                xhr.send(request);
+            }
+
+            function saveProject(){
+                var c = document.getElementById("source_code").value;
+                var t = document.getElementById("tests_description").value;
+                var v = document.getElementById("verification_script").value;
+                var r = document.getElementById("answer_type").value;
+                var o = document.getElementById("optimization_level_selector").value;
+                var sid = getCookie('sid');
+                var request = JSON.stringify(
+                {
+                    type: "save_project",
+                    sid:sid,
+                    options:o,
+                    code:c,
+                    tests:t,
+                    verifier:v,
+                    response_type:r,
+                    pid:pid
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/save_project', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(request);
+            }
+
+            function publichTask(){
+                var desc = document.getElementById("task_description").value;
+                var tname = document.getElementById("publish_task_name").value;
+                var o = document.getElementById("optimization_level_selector").value;
+                var v = document.getElementById("verification_script").value;
+                var t = document.getElementById("tests_description").value;
+                var sid = getCookie('sid');
+                var olymp = document.getElementById('publish_olymps').value;
+                var request = JSON.stringify(
+                {
+                    type: "publish_task",
+                    sid:sid,
+                    pid:pid,
+                    description:desc,
+                    name:tname,
+                    oid:olymp
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/publish_task', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function (){
+                    if (this.readyState != 4)
+                        return;
+
+                    if (this.status != 200)
+                        return;
+
+                    var res = JSON.parse(this.responseText);
+                    if (res.status === 'success') {
+                        document.getElementById('for_publish_result').innerHTML = 'OK';
+                    }
+                }
+                xhr.send(request);
+            }
+
+            function loadTasksToSend(){
+                var olymp = document.getElementById('send_olymps').value;
+                    var sid = getCookie('sid');
+                var request = JSON.stringify(
+                {
+                    type: "get_tasks_from_olymp",
+                    oid:olymp,
+                    sid:sid
+                } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/getinfo', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function() {
+                    if (this.readyState != 4)
+                        return;
+
+                    if (this.status != 200)
+                        return;
+
+                    var res = JSON.parse(this.responseText);
+                    if (res.status === 'success') {
+                        var x = document.getElementById("send_tasks");
+                        for (i = 0; i < res.data.length; i++) {
+                            var option = document.createElement("option");
+                            option.text = res.data[i][2];
+                            option.value = res.data[i][0];
+                            x.add(option);
+                        }
+                    }
+                }
+                xhr.send(request);
+            }
+
+            function sendSolution(){
+                var c = document.getElementById("source_code").value;
+                var sid = getCookie('sid');
+                var tid = document.getElementById("send_tasks").value;
+
+                    var request = JSON.stringify(
+                    {
+                        type: "get_tests_for_parsing",
+                        tid:tid
+                    } );
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', '/api/v1/getinfo', true);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onreadystatechange = function (){
+                            if (this.readyState != 4)
+                                return;
+
+                            if (this.status != 200)
+                                return;
+
+                            var res = JSON.parse(this.responseText);
+                            if (res.status !== 'success')
+                                return;
+                            var tests_description = res.data[0][0].replace(/[ \n\t]/g, '');
+                        	tests_description = notes.exec(tests_description, 0).res;
+                    var request = JSON.stringify(
+                    {
+                        type: "send_solution",
+                        tid:tid,
+                        sid:sid,
+                        code:c,
+                        tests:tests_description
+                    } );
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/api/v1/send_solution', true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.send(request);
+
+                    }
+                    xhr.send(request);
+
+            }
+		</script>
+	</body>
+</html>

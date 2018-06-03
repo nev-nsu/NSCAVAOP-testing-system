@@ -28,8 +28,8 @@ create table olymps (
     oid serial not null primary key,
     author int not null,
     name varchar(50),
-    start_time date,
-    end_time date,
+    start_time timestamp,
+    end_time timestamp,
     foreign key (author) references users(uid)
 );
 
@@ -44,13 +44,10 @@ create table tasks (
 );
 
 create table attempts (
+    aid serial not null primary key,
     tid int not null,
     uid int not null,
-    pid int not null,
-    number int not null,
-    result varchar(5),
-    primary key (tid, uid, number),
-    foreign key (pid) references projects(pid),
+    result int,
     foreign key (tid) references tasks(tid),
     foreign key (uid) references users(uid)
 );

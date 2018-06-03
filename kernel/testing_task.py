@@ -7,6 +7,7 @@ from kernel.thread_pool import SThreadPool
 
 class TTestingTask:
     def __init__(self, code, options, tests, verifier, response):
+        print ('DEBUG', code, options, tests, verifier, response)
         self.status = 'added'
         self.code = code
         self.verifier = verifier

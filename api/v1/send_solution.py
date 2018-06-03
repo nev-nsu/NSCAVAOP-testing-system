@@ -1,6 +1,7 @@
 import json
 from api.handler import IHandler
 from kernel.testing_task import TTestingTask
+from db.query import *
 
 def send_answer(request, response):
     request.send_response(200)
@@ -17,6 +18,14 @@ def send_result(request, task):
     response = {'status': status, 'result': task.result}
     send_answer(request, response)
 
+def cb(tt, sid, tid):
+    print (tt.result)
+    if 'ok\n' not in tt.result:
+        res = 0
+    else:
+        res = tt.result['ok\n']
+    set_result(res, sid, tid)
+
 class TApiCallHandler(IHandler):
     tasks = {}
 
@@ -32,26 +41,19 @@ class TApiCallHandler(IHandler):
         try:
             request = json.loads(body)
             type = request['type']
-            if type == 'run_tests':
-                task = TTestingTask(
-                    request['data']['code'],
-                    request['data']['options'],
-                    request['data']['tests'],
-                    request['data']['verifier'],
-                    request['data']['response_type'])
+
+            if type == 'send_solution':
+                tid = int(request['tid'])
+                sid = request['sid']
+                code = request['code']
+                tests = request['tests']
+                data = load_task_data(tid)
+                task = TTestingTask(code, {"optimization_level":"3"}, tests, data[0][5], "statistics")
                 self.tasks[task.number] = task
                 response = {'status': 'added', 'token': task.number}
                 send_answer(handler, response)
                 task.start()
-            elif type == 'update_status':
-                num = request['token']
-                if num not in self.tasks:
-                    response = {'status': 'not_found'}
-                    send_answer(handler, response)
-                else:
-                    task = self.tasks[num]
-                    callback = lambda tt: send_result(handler, tt)
-                    task.add_cb(callback)
+                task.add_cb(lambda x: cb(x, sid, tid))
             else:
                 handler.send_error(400, 'Bad request type')
 

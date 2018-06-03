@@ -5,36 +5,66 @@
 		<link href="style.css" rel="stylesheet">
 	</head>
 	<body>
-        Login: <input type="text" id="login"><br>
-        Password: <input type="text" id="password"><br>
-        <button id="submit" onclick="loginButtonHandler()"><font size="5">Login</font></button>
-        <button id="submit" onclick="regButtonHandler()"><font size="5">Register</font></button><br>
-        <p id="output"></p>
-        <script>  
-            function loginButtonHandler() {
-                var x = document.getElementById("login").value;
-                var y = document.getElementById("password").value;
-                sendSignInRequest(x, y);
+        <div>
+            <input type="text" id="project_name" value="">
+            <button type="button" class="greenButton" onclick="createProjectButton()"><font size="5">Создать новый проект</font></button>
+        </div>
+        <div>
+              <h2>Ваши проекты</h2>
+              <ul id="list">
+              </ul>
+        </div>
+        <script src="security.js"></script>
+        <script>
+            function loadProjects() {
+                var output = document.getElementById('list');
+
+                var sid = getCookie('sid');
+                var request = JSON.stringify(
+                    {
+                        type: "get_projects",
+                        sid:sid
+                    } );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/v1/getinfo', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                xhr.onreadystatechange = function() {
+                	if (this.readyState != 4)
+            		return;
+
+                    if (this.status === 200)
+                    {
+                        var obj = JSON.parse(this.responseText);
+                        if (obj.status === 'success'){
+                            for (i = 0; i < obj.data.length; i++) {
+                                output.innerHTML+='<li><a href="dynamic/project/'
+                                    + obj.data[i][0] + '">' + obj.data[i][2] + '</a></li>';
+                            }
+                        }
+                    }
+                };
+
+                xhr.send(request);
             }
 
-            function regButtonHandler() {
-                var x = document.getElementById("login").value;
-                var y = document.getElementById("password").value;
-                sendSignUpRequest(x, y);
+            function createProjectButton() {
+                var x = document.getElementById("project_name").value;
+                sendCreateProjectRequest(x);
             }
 
-            function sendSignUpRequest(login, password){
+            function sendCreateProjectRequest(pname){
+                var sid = getCookie('sid');
                 var request = JSON.stringify(
                 {
-                    type: "sign_up",
-                    data: {
-                        login:login,
-                        password:password
-                    }
+                    type: "create_project",
+                    sid:sid,
+                    name:pname
                 } );
 
                 var xhr = new XMLHttpRequest();
-                xhr.open('POST', '/api/v1/signup', true);
+                xhr.open('POST', '/api/v1/create_project', true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
 
                 xhr.onreadystatechange = function(){
@@ -42,53 +72,18 @@
                         return;
 
                     if (this.status != 200)
-                    {
-                        document.getElementById("output").innerHTML = this.status + ':' + this.statusText;
-                    }
-                    else
-                    {
-                        document.getElementById("output").innerHTML = this.responseText;
-                        // redirect
-                        // save cookie
-                    }
-                }
-
-                xhr.send(request);
-            }
-
-            function sendSignInRequest(login, password){
-                var request = JSON.stringify(
-                {
-                    type: "sign_in",
-                    data: {
-                        login:login,
-                        password:password
-                    }
-                } );
-
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', '/api/v1/signin', true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-
-                xhr.onreadystatechange = function(){
-                    if (this.readyState != 4)
                         return;
 
-                    if (this.status != 200)
-                    {
-                        document.getElementById("output").innerHTML = this.status + ':' + this.statusText;
-                    }
-                    else
-                    {
-                        document.getElementById("output").innerHTML = this.responseText;
-                        // redirect
-                        // save cookie
-                    }
+                    var response = JSON.parse(this.responseText);
+                    if (response.status === 'success')
+                        location.reload();
                 }
 
                 xhr.send(request);
             }
+
+            securityCheck();
+            loadProjects();
 		</script>
-
 	</body>
 </html>

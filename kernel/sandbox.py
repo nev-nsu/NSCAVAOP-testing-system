@@ -5,7 +5,10 @@ from config import SConfig
 def compile_options2string(options):
     res = ''
     if 'optimization_level' in options:
-        res += '-O' + options['optimization_level'] + ' '
+        a = options['optimization_level']
+        if len(a) == 1:
+            a = '-O' + a
+        res += ' ' + a + ' '
     return res
 
 
@@ -18,6 +21,7 @@ class TSandbox:
         text = 'noblacklist ' + self.dir + '\n' + \
                'whitelist ' + self.dir + '\n' + \
                'include ' + SConfig().SANDBOX_PROFILE + '\n'
+        print(self.dir)
         if not os.path.exists(self.dir):
             os.mkdir(self.dir)
         self.profile = os.path.join(self.dir, 'generated.profile')
@@ -64,6 +68,7 @@ class TSandbox:
         self.has_executable = True
         # check result of execution
         return {}
+
 
     def get_execution_result(self):
         assert self.has_output
