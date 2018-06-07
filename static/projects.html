@@ -2,17 +2,21 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<link href="style.css" rel="stylesheet">
+        <link href="style.css" rel="stylesheet">
+		<link href="inputs2.css" rel="stylesheet">
 	</head>
 	<body>
-        <div>
-            <input type="text" id="project_name" value="">
-            <button type="button" class="greenButton" onclick="createProjectButton()"><font size="5">Создать новый проект</font></button>
-        </div>
-        <div>
-              <h2>Ваши проекты</h2>
-              <ul id="list">
+        <div class="data">
+              <p><h2>Ваши проекты</h2></p>
+              <p><ul id="list">
               </ul>
+          </p>
+        </div>
+        <div class="form">
+            <form>
+            <input type="text" id="project_name" value="">
+            <button type="button" onclick="createProjectButton()"><font size="5">Создать новый проект</font></button>
+        </form>
         </div>
         <script src="security.js"></script>
         <script>

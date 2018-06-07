@@ -40,6 +40,8 @@
 	top:1px;
 }
 
+h2 {font: bold 36px Helvetica; color:#595; border-bottom:#CCC solid 1px; margin-top:25px;}
+
 select {
     margin: 10px;
 }
@@ -53,6 +55,7 @@ ul {
 li {
   font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
   border-bottom: 1px solid #ccc;
+  padding-top:5px;
 }
 
 li:last-child {
@@ -96,6 +99,12 @@ li p {
 
 span {
   position: absolute;
+}
+
+.row {
+    border-bottom: 1px solid #aaa;
+    margin:10px;
+    padding-bottom: 20px;
 }
 
 /* Create three equal columns that floats next to each other */

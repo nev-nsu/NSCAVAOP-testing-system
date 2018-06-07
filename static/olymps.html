@@ -3,29 +3,37 @@
 	<head>
 		<meta charset="utf-8">
 		<link href="style.css" rel="stylesheet">
+        <link href="inputs2.css" rel="stylesheet">
 	</head>
 	<body>
-        <div>
-            <input type="text" id="olymp_name" value="">
-            <input id="datetime_start" type="datetime" placeholder="Начало">
-            <input id="datetime_end" type="datetime" placeholder="Конец">
-            <button type="button" class="greenButton" onclick="createOlympButton()"><font size="5">Создать новую олимпиаду</font></button>
-        </div>
-        <div>
-              <h2>Ваши олимпиады (автор)</h2>
-              <ul id="list">
+        <div class="data">
+              <p><h2>Ваши олимпиады (автор)</h2></p>
+              <p><ul id="list">
               </ul>
+          </p>
         </div>
-        <div>
-              <h2>Ваши олимпиады (участник)</h2>
-              <ul id="list2">
+        <div class="data">
+              <p><h2>Ваши олимпиады (участник)</h2></p>
+              <p><ul id="list2">
               </ul>
+          </p>
         </div>
-        <div>
-              <h2>Вы можете принять участие</h2>
-              <ul id="list3">
+        <div class="data">
+              <p><h2>Доступные олимпиады</h2></p>
+              <p><ul id="list3">
               </ul>
+          </p>
         </div>
+        <div class="form">
+            <form>
+                <input type="text" id="olymp_name" placeholder="Название олимпиады" value="">
+                <input id="datetime_start" type="datetime" placeholder="Начало">
+                <input id="datetime_end" type="datetime" placeholder="Конец">
+                <button type="button" onclick="createOlympButton()"><font size="5">Создать новую олимпиаду</font></button>
+
+        </form>
+        </div>
+
         <script src="security.js"></script>
         <script>
             var sid = getCookie('sid');

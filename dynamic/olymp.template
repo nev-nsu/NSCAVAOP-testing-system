@@ -5,14 +5,9 @@
 		<link href="/style.css" rel="stylesheet">
 	</head>
 	<body>
-<div class="header">
-<p>
-<h2 id="olympiad_name">Олимпиада</h2>
-</p>
-</div>
         <div class="row">
           <div class="column">
-<h4> Ваши попытки </h4>
+<h2> Ваши попытки </h2>
 <div class="table">
 		<div class="table-header">
         <div class="header__item"><a id="wins" class="filter__link filter__link--number" href="#">Номер попытки</a></div>
@@ -24,14 +19,14 @@
 	</div>
 				</div>
 			 <div class="column">
-             <h4> Задачи </h4>
+             <h2> Задачи </h2>
              <div>
                <ol id = "tasks_list">
 
              </div>
 				</div>
 		 <div class="column">
-         <h4> Рейтинг участников </h4>
+         <h2> Рейтинг участников </h2>
          <div class="table">
          		<div class="table-header">
                 <div class="header__item"><a id="draws" class="filter__link filter__link--number" href="#">Место</a></div>
