@@ -9,21 +9,21 @@ var optimization_lvl_selector = document.getElementById('optimization_level_sele
 function disablePage()
 {
 	send_button.disabled = true;
-	code_field.disabled = true;
+	/*code_field.disabled = true;
 	tests_description_field.disabled = true;
 	verificator_field.disabled = true;
 	file_button.disabled = true;
-	optimization_lvl_selector.disabled = true;
+	optimization_lvl_selector.disabled = true;*/
 }
 
 function enablePage()
 {
 	send_button.disabled = false;
-	code_field.disabled = false;
+	/*code_field.disabled = false;
 	tests_description_field.disabled = false;
 	verificator_field.disabled = false;
 	file_button.disabled = false;
-	optimization_lvl_selector.disabled = false;
+	optimization_lvl_selector.disabled = false;*/
 }
 
 function saveTokenToCookie(token)
@@ -55,39 +55,46 @@ function updateRequestReadystatechangeHandler()
 	{
 		//var status = this.responseText.match(/"status": "([^"]*)"/)[1];
 		var response = JSON.parse(this.responseText);
-		if (response.status === 'failed')
+		switch (response.status)
 		{
-			//error = this.responseText.match(/"data": "([^"]*)"/)[1];
-			output_field.innerHTML = '<p>Failed</p><p>Error: ' + response.data + '</p>';
-		}
-		else
-		{
-			if (Array.isArray(response.result))
-			{					
-				var newWin = window.open();
-				var n = response.result.length;
-				var str = '';
-				for (var i = 0; i < n; i++)
-				{
-					if (response.result[i].status === 'ok\n')
-						str += '<p><font color="green">status: ok</font></p>';
-					else
-						str += '<p><font color="red">status: ' + response.result[i].status + '</font></p>';
-
-					str += '<p>input: ' + response.result[i].input + '</p>';
-					str += '<p>output: ' + response.result[i].output + '</p>';
-					str += '<p>---------------------------------</p>';
-				}
-				newWin.document.write(str);
-			}
-			else
+			case 'failed':
 			{
-				var str = '';
-				for (var key in response.result)
-				{
-					str += '<p>' + key + ': ' + response.result[key] + '</p>';
+				//error = this.responseText.match(/"data": "([^"]*)"/)[1];
+				output_field.innerHTML = '<p>Failed</p><p>Error: ' + response.data + '</p>';
+			}
+			case 'not_found':
+			{
+				output_field.innerHTML = 'Task not found';
+			}
+			case 'finished':
+			{
+				if (Array.isArray(response.result))
+				{					
+					var newWin = window.open();
+					var n = response.result.length;
+					var str = '';
+					for (var i = 0; i < n; i++)
+					{
+						if (response.result[i].status === 'ok\n')
+							str += '<p><font color="green">status: ok</font></p>';
+						else
+							str += '<p><font color="red">status: ' + response.result[i].status + '</font></p>';
+
+						str += '<p>input: ' + response.result[i].input + '</p>';
+						str += '<p>output: ' + response.result[i].output + '</p>';
+						str += '<p>---------------------------------</p>';
+					}
+					newWin.document.write(str);
 				}
-				output_field.innerHTML = str;
+				else
+				{
+					var str = '';
+					for (var key in response.result)
+					{
+						str += '<p>' + key + ': ' + response.result[key] + '</p>';
+					}
+					output_field.innerHTML = str;
+				}
 			}
 		}
 		send_button.innerHTML = '<font size="5">Send</font>';
@@ -129,7 +136,6 @@ function primaryRequestReadystatechangeHandler()
 	else
 	{
 		send_button.innerHTML = '<font size="5">Running...</font>';
-		//output_field.innerHTML = this.responseText;  //отладка
 
 		//var token = this.responseText.match(/"token": "([^"]*)"/)[1];
 		var token = JSON.parse(this.responseText).token;
@@ -181,6 +187,7 @@ function sendRunTestingRequest()
 		//alert( JSON.stringify(tests_description, '', 4) );  // отладка
 		var op_lvl = optimization_lvl_selector.value.match(/-O(.*)/)[1];
 		var answer_type = document.getElementById('answer_type').value;
+		answer_type = answer_type.toLowerCase().replace(/ /g, '_');
 		var primary_request = JSON.stringify(
 		{
 			type: "run_tests",
